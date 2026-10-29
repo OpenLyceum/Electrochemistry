@@ -1,108 +1,80 @@
-# AGENTS.md — SceneryStack Template
+# AGENTS.md — Electrochemistry
 
 Sim-specific context for AI assistants. General SceneryStack guidance: [OpenLyceum/.github/AGENTS.md](https://github.com/OpenLyceum/.github/blob/main/AGENTS.md).
 
 ## Project
 
-Reusable SceneryStack template (one or N screens) and **canonical accessibility reference** for
-OpenLyceum sims. Prefer `Baton/scripts/create-sim.sh` (or GitHub **Use this template** +
-`npm run rename` + `npm run scaffold-screens`) to fork it. For multi-screen sims, see
-[`doc/multi-screen.md`](doc/multi-screen.md).
+Electrochemistry for **introductory (General) chemistry**, the electrochemistry chapter of Gen
+Chem 2 (OpenStax *Chemistry 2e*, chapter 17). It follows TitrationLab in the Gen Chem sequence
+and fills a gap: PhET has no electrochemistry simulation. Three screens:
+
+| Screen | Folder | Content |
+|---|---|---|
+| Galvanic Cell | `src/galvanic-cell/` | Two half-cells at 1 M, salt bridge, voltmeter, bulb and switch; electrons, bridge ions and beaker ions animated; cell notation, half-reactions, overall reaction, E°cell; the cell runs down with the bulb in |
+| Nernst | `src/nernst/` | The same cell with log-scale concentration sliders and temperature; E against log Q with standard and equilibrium points; Nernst equation, ΔG and K worked out; swap, concentration cell, run to equilibrium |
+| Electrolysis | `src/electrolysis/` | Copper plating, silver plating, CuCl₂, water; variable DC supply with a decomposition threshold; plating, dissolving anode, gas tubes (2 : 1 for water); Faraday's-law calculation |
+
+Chemistry, data sources and assumptions: [`doc/model.md`](doc/model.md). Architecture and design
+decisions: [`doc/implementation-notes.md`](doc/implementation-notes.md).
+
+### Things to know first
+
+- **One cell model for two screens.** `common/model/ElectrochemicalCell.ts` is the galvanic cell
+  on both the Galvanic Cell and Nernst screens. Left and right are fixed places; the anode is
+  whichever electrode has the lower Nernst potential (`anodeSideProperty`), so the cell works
+  either way round.
+- **The voltmeter reads E_right − E_left** (black lead left, red right): negative when the
+  student builds the cell "backwards", zero with the salt bridge out. The Nernst screen writes
+  the reaction with left = anode and right = cathode, so its E is the same number.
+- **The cell runs down with a mass-transport limit.** I = |E| / (R + R_MT / [Ox]cathode). Without
+  the R_MT term a Daniell cell would keep 0.9 A flowing with no Cu²⁺ left. With it, the current
+  dies away and E stays high (K ≈ 10³⁷ is out of reach), which is the correct open-circuit
+  behaviour. A concentration cell runs all the way to E = 0.
+- **Potentials are CRC values** (the ones OpenStax reproduces): Cu²⁺/Cu is +0.3419 V, so the
+  Daniell cell is 1.104 V. Changing a value means changing a test.
+- **Ideal behaviour.** Activities equal molarities; E° does not depend on temperature;
+  electrolysis ignores overpotential (water needs 1.229 V here, nearer 1.8 V in practice); Mg's
+  reaction with water and Al's oxide layer are ignored.
+- **Time is scaled.** The galvanic clock runs at 10 min, 1 h or 10 h of cell time per second;
+  electrolysis at 10 s, 1 min or 10 min per second. Readouts show cell time, not wall time.
 
 ## Key files
 
 | File | Purpose |
 |---|---|
-| `src/SimColors.ts` | All `ProfileColorProperty` instances |
-| `src/SimConstants.ts` | Named numeric constants (layout px, physics SI units) |
-| `src/SimNamespace.ts` | Namespace for color property names |
-| `src/i18n/StringManager.ts` | Singleton localized string accessor |
-| `src/sim-screen/SimScreen.ts` | Screen wrapper |
-| `src/sim-screen/model/SimModel.ts` | Simulation state and logic |
-| `src/sim-screen/view/SimScreenView.ts` | Visual nodes, layout, `screenSummaryContent` + `pdomOrder` |
-| `src/sim-screen/view/SimScreenSummaryContent.ts` | Accessible screen summary (reference a11y pattern) |
-| `src/sim-screen/view/SimKeyboardHelpContent.ts` | Basic keyboard actions + commented slider/time-control sections |
-| `src/common/SimPanel.ts` | Pre-themed `Panel` wrapper (uses `SimColors` automatically) |
-| `src/common/SimButtonOptions.ts` | Flat button-appearance option bundles + light-control-surface combo-box options |
-| `src/common/SimControlOptions.ts` | Shared slider, number-control, and checkbox sizing/theme options |
-| `src/common/TimeModel.ts` | Composable play/pause + elapsed-time model for animated sims |
-| `scripts/generate-icons.ts` | PNG icons from `public/icons/icon.svg` |
-| `scripts/rename-sim.ts` | Sim-level fork/rename (metadata, Colors, Constants, Panel, Button/Control options, Preferences) |
-| `scripts/scaffold-screens.ts` | Emit N screen packages + wire main/strings/icons |
-
-## Common components
-
-### SimPanel
-
-Every control panel and info box in the sim should use `SimPanel` so that
-default/projector color switching is automatic:
-
-```typescript
-import { SimPanel } from "../../common/SimPanel.js";
-const panel = new SimPanel(content);              // uses SimColors defaults
-const panel = new SimPanel(content, { xMargin: 20 }); // override any PanelOption
-```
-
-### TimeModel
-
-For simulations with animation, compose `TimeModel` into your screen model:
-
-```typescript
-import { TimeModel } from "../../common/TimeModel.js";
-
-export class MyModel implements TModel {
-  public readonly timer = new TimeModel();   // starts paused; pass true to auto-play
-
-  public step(dt: number): void {
-    this.timer.step(dt);
-    // use this.timer.timeProperty.value for physics
-  }
-  public reset(): void { this.timer.reset(); /* … */ }
-}
-```
-
-Wire the view to `TimeControlNode` from `scenerystack/scenery-phet` binding on
-`model.timer.isPlayingProperty`.
-
-### SimButtonOptions
-
-SceneryStack's push/round buttons default to a 3-D/beveled look; every button in the sim
-should be flat instead. Spread these into the relevant options object:
-
-```typescript
-import { FLAT_RESET_ALL_BUTTON_OPTIONS, FLAT_RECTANGULAR_BUTTON_OPTIONS } from "../../common/SimButtonOptions.js";
-
-const resetAllButton = new ResetAllButton({ ...FLAT_RESET_ALL_BUTTON_OPTIONS, listener: () => {...} });
-const exampleButton = new RectangularPushButton({ ...FLAT_RECTANGULAR_BUTTON_OPTIONS, content, listener });
-```
-
-`FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS` spreads into `TimeControlNode`'s `playPauseStepButtonOptions`;
-`TIME_CONTROL_SPEED_RADIO_OPTIONS` fixes `TimeControlNode`'s speed-radio label color, which
-otherwise defaults to black text on the sim's dark default-mode panels. `SIM_COMBO_BOX_OPTIONS`
-themes a `ComboBox`'s button/list chrome to the light control surface below; pair item labels
-with `LIGHT_SURFACE_TEXT_FILL` (not `SimColors.textColorProperty`, which is for panel-fill text).
-
-`SimColors.ts` backs this with a "light control surfaces" section —
-`controlSurfaceColorProperty`, `controlSurfaceDisabledColorProperty`,
-`controlSurfaceTextColorProperty` — identical white/dark-text values in both default and
-projector profiles, so any component that must stay light regardless of theme (combo boxes,
-flat buttons, editable fields) keeps readable contrast automatically.
+| `src/ElectrochemistryConstants.ts` | F, R, T, volumes, electrode mass, resistances, time scales, ranges, layout |
+| `src/ElectrochemistryColors.ts` | All `ProfileColorProperty` instances: chrome, chart, apparatus, metals |
+| `src/common/model/HalfCells.ts` | Half-cell data: ion, n, ν, E°, molar mass |
+| `src/common/model/Nernst.ts` | Electrode and cell potentials, n = lcm, Q, slope, ΔG, log K |
+| `src/common/model/ElectrochemicalCell.ts` | Two `HalfCellState`s, voltmeter reading, anode side, current, running down |
+| `src/common/model/ElectrolysisSystems.ts` | Electrolysis data (electrodes, half-reactions, products, E_min, R); `productMoles` |
+| `src/electrolysis/model/ElectrolysisModel.ts` | Supply, current above E_min, charge, masses, gas volumes, tube full |
+| `src/common/view/GalvanicCellNode.ts` | Whole galvanic cell drawing (shared; scaled on the Nernst screen) |
+| `src/common/view/HalfCellBeakerNode.ts` | Beaker, tinted solution, electrode by mass, hydrogen electrode, ion particles |
+| `src/common/view/ElectronFlowNode.ts` | Electrons moving along a wire polyline |
+| `src/common/view/MeterNode.ts` | Digital meter (voltmeter, power supply) with black/red terminals |
+| `src/common/view/formatValues.ts` | Numbers (`fromLog` for K), half-reactions, overall reaction, cell notation, Q expression |
+| `src/common/view/ControlFactory.ts` | Themed control builders (copied from TitrationLab) |
+| `src/nernst/view/NernstChartNode.ts` | E against log Q with self-fitting axes |
+| `src/electrolysis/view/ElectrolysisCellNode.ts` | Supply, beaker, plating, gas tubes, bubbles, electrons |
 
 ## Accessibility
 
-This template is the **canonical accessibility reference** for OpenLyceum sims. It ships with
-the three required layers wired up: PDOM names, a `SimScreenSummaryContent`, and an explicit
-`pdomOrder` + `SimKeyboardHelpContent`. A11y strings live under the `a11y` key in each locale
-JSON, exposed via `StringManager.getA11yStrings()`. When building a real sim, make
-`currentDetailsContent` a live `DerivedProperty` over model state and add `accessibleName`s to
-every interactive node. Full convention and checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
+- Galvanic Cell: the switch and salt bridge are pointer shortcuts in the drawing; the same
+  actions are checkboxes in the Circuit panel. Connecting the bulb (with the direction of electron
+  flow), the salt bridge, the current dying and a dissolved anode are announced. The live summary
+  gives both half-cells, the voltmeter reading, the anode and cathode, and the current.
+- Nernst: concentrations and temperature are sliders whose value text is the concentration in M.
+  Swapping, the concentration cell and reaching equilibrium are announced. The live summary
+  gives Q, log Q, E°, E and the verdict.
+- Electrolysis: the power checkbox announces the current (or that the voltage is below the
+  minimum); a full tube and a dissolved anode are announced. The live summary gives the supply,
+  current, charge, time and the products.
 
 ## Compliance carve-outs
 
-A clean fork of this template rarely needs compliance carve-outs — root `SimConstants.ts`,
-`*Colors.ts`, `*Namespace.ts`, standard screen layout, and full a11y wiring pass Baton's
-compliance check out of the box. Document carve-outs in the forked sim's `AGENTS.md` only when
-you introduce a deliberate deviation (nested constants, hardcoded interaction fills, etc.).
+None: every colour is in `ElectrochemistryColors.ts`. Solution tints are mixed from profile
+colours at runtime (`Color.interpolateRGBA`) in `HalfCellBeakerNode` and `ElectrolysisCellNode`.
 
 ### Template-owned files (drift-checked)
 
@@ -132,27 +104,16 @@ open PRs that fight the overrides. Revisit when SceneryStack drops or re-pins th
 
 ## Testing
 
-Fleet-standard Vitest layout (keep when forking):
-
 | Path | Purpose |
 |---|---|
-| `vitest.config.ts` | `happy-dom` environment; `setupFiles: ["./tests/setup.ts"]`; `execArgv: ["--expose-gc"]` |
-| `tests/setup.ts` | Canvas / AudioContext mocks + `init({ name: "…" })` before SceneryStack imports |
-| `tests/TimeModel.test.ts` | Sample model unit tests — replace with real physics tests |
-| `tests/memory-leak.test.ts` | Lists the sim's disposables for `describeDisposalLeaks()` (collected after dispose, repeated cycles; opt-in double dispose) |
-| `tests/helpers/memoryLeak.ts` | Template-owned leak harness: `describeDisposalLeaks`, `forceGC`, `createAndDispose` |
-| `tests/fuzz/fuzz.spec.ts` | Optional Playwright fuzz smoke: pointer `?fuzz` + keyboard `?fuzzBoard` (template-owned; add sim-specific specs as separate files) |
-| `playwright.config.ts` | Chromium project + Vite webServer for `tests/**/*.spec.ts` (template-owned) |
-| `tests/browser/*.spec.ts` | Optional sim-specific Playwright tests (`npx playwright test tests/browser`); `npm run test:fuzz` runs only `tests/fuzz/` |
+| `tests/common/Nernst.test.ts` | Daniell 1.104 V, n = lcm, 0.0592/n slope, mixed-n and hydrogen-electrode Q, concentration cell, ΔG° = −213 kJ, log K = 37.3 |
+| `tests/common/ElectrochemicalCell.test.ts` | Voltmeter sign and salt bridge, no current until the bulb is in, electron bookkeeping, Daniell run-down, concentration cell to E = 0, half-cell change refreshes |
+| `tests/common/Electrolysis.test.ts` | 2.00 A × 30 min → 1.19 g Cu, H₂ : O₂ = 2 : 1 and 63.4 mL per 500 C, E_min threshold, tube full stops the run, CuCl₂ depletion |
+| `tests/TimeModel.test.ts` | Template `TimeModel` |
+| `tests/memory-leak.test.ts`, `tests/helpers/`, `tests/fuzz/` | Template-owned harness; the leak suite covers `ElectronFlowNode`, wires and ion particles |
 
-- Put unit tests only under root `tests/`, mirroring `src/` (never co-locate or use `__tests__/`).
-- Change the `name` passed to `init()` in `tests/setup.ts` to match `package.json` after `npm run rename`.
-- Run `npm test`. CI runs the suite when a `test` script is present.
-- Add every model/view object that adds/removes nodes or links Properties at runtime to the
-  `describeDisposalLeaks([...])` list in `memory-leak.test.ts`; put sim-specific leak scenarios
-  after it using `forceGC()` from `tests/helpers/memoryLeak.ts` (never a local copy).
+- Unit tests live only under root `tests/`, mirroring `src/`.
 - Optional: `npm run test:fuzz` / `test:fuzz:quick` / `test:fuzz:long` (not part of default CI).
-  Duration is 30s by default; override with `npm run test:fuzz -- 90` or `FUZZ_DURATION=90`.
 
 ## Commands
 
@@ -172,78 +133,10 @@ npm run lint && npm run check && npm run build && npm test
 | `npm run test:fuzz:quick` | 10s fuzz |
 | `npm run test:fuzz:long` | 300s fuzz |
 | `npm run icons` | Regenerate PWA icons; seed missing screenshots, preserve existing ones |
-| `npm run rename` | Sim-level fork/rename (`--id`, `--name`) |
-| `npm run scaffold-screens` | Emit N screens (`--screens Intro,Lab`) |
 | `npm run release` | `check && lint && build && test`, then version patch + push tags |
 
 `src/init.ts` reads `version` from `package.json`, so the patch bump shows up in the About dialog
 without a second edit.
-
-## Customizing a new sim from this template
-
-### Recommended: Baton create-sim
-
-```sh
-Baton/scripts/create-sim.sh --repo Friction --name "Friction" --screens Intro,Lab --shared-model --onboard
-```
-
-### Manual: GitHub template + rename + scaffold
-
-```sh
-npm install
-npm run rename -- --id friction --name "Friction"
-npm run scaffold-screens -- --screens Intro,Lab --shared-model
-# omit --screens for one screen named after the sim; omit --shared-model for independent models
-npm run fix     # required: both scripts reorder imports, which Biome then sorts
-npm run check
-```
-
-`rename` updates package id and metadata, display name, and every sim-level `Sim*`
-(Colors, Constants, Namespace, Panel, ButtonOptions, ControlOptions, Preferences, query parameters).
-`scaffold-screens` owns screen folders (fleet naming: `src/intro/`, not `intro-screen/`).
-After both steps no `Sim*` identifier should remain — `rg -n '\bSim[A-Z_]|\bSIM_[A-Z_]' src` to confirm.
-
-### Manual checklist (if not using the scripts)
-
-1. **Rename** — replace `scenerystack-template` / `SceneryStack Template` / `Sim` prefix in `init.ts`, `brand.ts`, `package.json` (name, description, keywords, repository.url), Colors/Constants/Namespace/Panel/ButtonOptions/ControlOptions/Preferences
-2. **Screens** — run `scaffold-screens` or mirror `sim-screen/` into kebab folders
-3. **Locale** — add `strings_XX.json`, register in `StringManager`, add locale to `init.ts` `availableLocales`
-4. **Icon** — edit `public/icons/icon.svg`, run `npm run icons`; match theme color in `index.html` / `vite.config.ts`.
-   Once `assets/screenshot.png` exists (Baton `generate-screenshots.sh`), `npm run icons -- --screenshots-from-assets`
-   replaces the placeholder PWA screenshots
-5. **Colors** — edit `*Colors.ts` (`default` + `projector` profiles per property), one
-   `new ProfileColorProperty(Namespace, name, { default, projector })` per entry — no local helper
-6. **Description** — write a real one-sentence `package.json` `description`; `index.html` and the
-   PWA manifest read it (`%SIM_DESCRIPTION%`), so there is nothing else to edit
-7. **Placeholders** — delete the `exampleToggle` preference and the `exampleControl` a11y string;
-   delete `src/common/TimeModel.ts` (and `tests/TimeModel.test.ts`) if the sim has no clock
-8. **Verify** — `Baton/scripts/check-template-drift.sh --fix <Sim>` (drops `rename` /
-   `scaffold-screens`, which are template-only) and `COMPLIANCE_STRICT=1 Baton/scripts/check-repo-compliance.sh .`
-
-## Multi-screen sims
-
-Full guide: [`doc/multi-screen.md`](doc/multi-screen.md)
-
-Summary:
-- Prefer `npm run scaffold-screens -- --screens Intro,Lab` (add `--shared-model` for a root model)
-- Or create a screen folder mirroring `src/sim-screen/` for each screen (kebab names, no `-screen` suffix)
-- Add screen-name keys to all locale JSON files; nest `a11y` per screen
-- Expose new getters in `StringManager.getScreenNames()` / `get{Screen}A11yStrings()`
-- Shared state: `--shared-model` → `common/model/SharedModel.ts` composed per screen (rename to a domain type)
-- Add `src/common/{SimName}ScreenIcons.ts` with `create{Screen}Icon()` factories; wire `homeScreenIcon` + `navigationBarIcon` on each Screen
-- Register all screens in the `screens` array in `main.ts`
-
-## Using this template beyond a direct copy
-
-| Approach | When to use |
-|---|---|
-| **`Baton/scripts/create-sim.sh`** | Agents / fleet — create repo, rename, scaffold N screens |
-| **GitHub template** ("Use this template") | Humans starting a sim in the browser |
-| `npm run rename` + `scaffold-screens` | Same, after cloning the template |
-| **npm workspace / monorepo** | Managing a suite of sims with shared tooling |
-| **`Baton/scripts/check-template-drift.sh`** | Keeping forks in sync with template improvements |
-
-See `doc/multi-screen.md` → "Using this template beyond a direct copy" for details.
 
 ## PWA
 

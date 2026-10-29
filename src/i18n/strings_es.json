@@ -1,21 +1,187 @@
 {
-  "title": "Plantilla de Simulación",
+  "title": "Electroquímica",
   "screens": {
-    "sim": "Simulación"
+    "galvanicCell": "Celda galvánica",
+    "nernst": "Nernst",
+    "electrolysis": "Electrólisis"
+  },
+  "halfCells": {
+    "mg": "Magnesio",
+    "al": "Aluminio",
+    "zn": "Zinc",
+    "fe": "Hierro",
+    "ni": "Níquel",
+    "pb": "Plomo",
+    "h2": "Hidrógeno (EEH)",
+    "cu": "Cobre",
+    "ag": "Plata"
+  },
+  "systems": {
+    "copperPlating": "Cobreado",
+    "silverPlating": "Plateado de una cuchara",
+    "copperChloride": "Cloruro de cobre(II)",
+    "water": "Agua"
+  },
+  "common": {
+    "halfCellMenuPattern": "{{name}}: {{couple}}",
+    "anode": "Ánodo",
+    "cathode": "Cátodo",
+    "anodeSign": "Ánodo (−)",
+    "cathodeSign": "Cátodo (+)",
+    "oxidation": "oxidación",
+    "reduction": "reducción",
+    "saltBridge": "Puente salino",
+    "connectBulb": "Conectar la bombilla",
+    "ions": "Iones",
+    "reactions": "Reacciones",
+    "leftHalfCell": "Semicelda izquierda",
+    "rightHalfCell": "Semicelda derecha",
+    "voltmeter": "Voltímetro",
+    "voltsPattern": "{{value}} V",
+    "ampsPattern": "{{value}} A",
+    "molarPattern": "{{value}} M",
+    "hoursPattern": "{{value}} h",
+    "minutesPattern": "{{minutes}} min {{seconds}} s",
+    "time": "Tiempo",
+    "current": "Corriente",
+    "charge": "Carga",
+    "coulombsPattern": "{{value}} C",
+    "openCircuit": "Sin puente salino: el circuito está abierto.",
+    "anodeGone": "El ánodo se ha disuelto por completo.",
+    "currentDied": "Sin corriente: el ion del cátodo se ha agotado.",
+    "equilibrium": "Sin corriente: la celda está en equilibrio.",
+    "cellNotationPattern": "Notación de la celda: {{notation}}",
+    "anodeReactionPattern": "Ánodo (oxidación): {{reaction}}",
+    "cathodeReactionPattern": "Cátodo (reducción): {{reaction}}",
+    "overallReactionPattern": "Global: {{reaction}}",
+    "standardPotentialPattern": "E°<sub>celda</sub> = E°<sub>cátodo</sub> − E°<sub>ánodo</sub> = {{cathode}} V − ({{anode}} V) = {{value}} V",
+    "sameHalfCells": "La misma semicelda en ambos lados: con concentraciones iguales, E = 0 y no ocurre nada.",
+    "concentrationRowPattern": "[{{ion}}]: {{value}} M",
+    "electrodeMassPattern": "Electrodo de {{metal}}: {{value}} g ({{change}} g)",
+    "platinumElectrode": "Electrodo de Pt: sin cambios",
+    "conventionalCurrent": "I"
+  },
+  "galvanicCell": {
+    "halfCellsHeading": "Semiceldas",
+    "circuitHeading": "Circuito",
+    "showHeading": "Mostrar",
+    "measurementsHeading": "Mediciones",
+    "newCell": "Celda nueva"
+  },
+  "nernst": {
+    "concentrationsHeading": "Condiciones",
+    "concentrationPattern": "{{side}} [{{ion}}]",
+    "left": "Izquierda",
+    "right": "Derecha",
+    "temperature": "Temperatura",
+    "celsiusPattern": "{{value}} °C",
+    "swap": "Intercambiar semiceldas",
+    "concentrationCell": "Celda de concentración",
+    "showEquation": "Ecuación",
+    "chartTitle": "Potencial de la celda frente al cociente de reacción",
+    "xAxis": "log<sub>10</sub> Q",
+    "yAxis": "E (V)",
+    "standardLabel": "Q = 1: E = E°",
+    "equilibriumLabel": "Q = K: E = 0",
+    "offChartPattern": "Q = K en log Q = {{value}}, fuera del gráfico",
+    "asWrittenPattern": "Tal como está escrita (ánodo a la izquierda, cátodo a la derecha): {{reaction}}",
+    "concentrationCellReactionPattern": "{{ion}}(aq, derecha) → {{ion}}(aq, izquierda)",
+    "quotientPattern": "Q = {{expression}} = {{value}}",
+    "electronsPattern": "n = {{value}} electrones",
+    "nernstGeneral": "E = E° − (2,303 RT / nF) log Q",
+    "nernstPattern": "E = {{standard}} V − ({{slope}} V)({{logQ}}) = {{value}} V",
+    "gibbsPattern": "ΔG = −nFE = {{value}} kJ/mol",
+    "equilibriumConstantPattern": "K = {{value}}   (log K = {{log}})",
+    "spontaneous": "E > 0 y Q < K: espontánea tal como está escrita.",
+    "nonSpontaneous": "E < 0 y Q > K: la reacción inversa es la espontánea.",
+    "atEquilibrium": "E = 0 y Q = K: en equilibrio."
+  },
+  "electrolysis": {
+    "electrolyteHeading": "Celda electrolítica",
+    "supplyHeading": "Fuente de alimentación",
+    "measurementsHeading": "Mediciones",
+    "faradayHeading": "Ley de Faraday",
+    "powerOn": "Encendida",
+    "voltage": "Voltaje",
+    "newRun": "Nueva prueba",
+    "showCalculation": "Mostrar el cálculo",
+    "electrolytePattern": "Electrolito: {{formula}}(aq), {{value}} M",
+    "minimumVoltagePattern": "Voltaje mínimo: {{value}} V",
+    "belowMinimum": "Por debajo del voltaje mínimo: sin corriente.",
+    "tubeFull": "Un tubo de gas está lleno. Comienza una nueva prueba.",
+    "anodeDissolved": "El ánodo se ha disuelto. Comienza una nueva prueba.",
+    "cathodeMassPattern": "Cátodo: {{value}} g ({{change}} g)",
+    "anodeMassPattern": "Ánodo: {{value}} g ({{change}} g)",
+    "gasVolumePattern": "{{gas}} recogido: {{value}} mL",
+    "cationPattern": "[Cu<sup>2+</sup>]: {{value}} M",
+    "chargePattern": "Q = ∫I dt = {{value}} C",
+    "electronMolesPattern": "n(e<sup>−</sup>) = Q / F = {{value}} mol",
+    "productMolesPattern": "n({{formula}}) = n(e<sup>−</sup>) / {{electrons}} = {{value}} mol",
+    "productMassPattern": "m({{formula}}) = {{moles}} mol × {{molarMass}} g/mol = {{value}} g",
+    "productVolumePattern": "V({{formula}}) = {{moles}} mol × {{molarVolume}} L/mol = {{value}} mL",
+    "plated": "depositado",
+    "dissolved": "disuelto",
+    "productHeadingPattern": "{{electrode}}: {{formula}} {{action}}",
+    "collected": "recogido",
+    "supplyCaption": "Fuente de c.c."
   },
   "a11y": {
-    "screenSummary": {
-      "playArea": "El área de juego muestra el contenido principal de la simulación.",
-      "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-      "interactionHint": "Explora la simulación interactuando con sus controles."
+    "galvanicCell": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra una celda galvánica: dos vasos, cada uno con un electrodo metálico en una disolución de su ion, unidos por un puente salino. Un voltímetro está conectado entre los electrodos, y un cable con una bombilla y un interruptor los une.",
+        "controlArea": "El área de control tiene menús para las semiceldas izquierda y derecha, casillas para el puente salino y la bombilla, casillas para mostrar las reacciones y los iones, un botón Celda nueva, controles de tiempo y Restablecer todo.",
+        "interactionHint": "Elige dos semiceldas, luego conecta la bombilla y reproduce para ver cómo se descarga la celda."
+      },
+      "currentDetailsPattern": "Izquierda: {{left}}. Derecha: {{right}}. El voltímetro marca {{voltage}} voltios. {{state}}",
+      "anodeIsPattern": "El electrodo de {{anode}} es el ánodo y el electrodo de {{cathode}} es el cátodo.",
+      "noReaction": "Los dos electrodos están al mismo potencial.",
+      "currentPattern": "Circula una corriente de {{value}} amperios.",
+      "halfCellPattern": "{{name}}, {{concentration}} molar",
+      "responses": {
+        "bulbConnectedPattern": "Bombilla conectada. Los electrones fluyen del ánodo de {{anode}} al cátodo de {{cathode}}, y la bombilla se enciende.",
+        "bulbConnectedNoCurrent": "Bombilla conectada, pero no circula corriente.",
+        "bulbDisconnected": "Bombilla desconectada. No circula corriente.",
+        "saltBridgeRemoved": "Puente salino retirado. El circuito está abierto y el voltímetro marca cero.",
+        "saltBridgeInsertedPattern": "Puente salino colocado. El voltímetro marca {{value}} voltios.",
+        "currentDied": "La corriente se ha extinguido: el ion del cátodo se ha agotado.",
+        "anodeGone": "El ánodo se ha disuelto por completo.",
+        "newCell": "Disoluciones y electrodos nuevos."
+      }
     },
-    "currentDetails": "La simulación está en su estado inicial.",
-    "controls": {
-      "exampleControl": "Control de ejemplo"
+    "nernst": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra una pequeña celda galvánica, un gráfico del potencial de la celda frente al logaritmo del cociente de reacción, y la ecuación de Nernst resuelta para las concentraciones actuales.",
+        "controlArea": "El área de control tiene menús para las dos semiceldas, deslizadores para la concentración de cada ion y la temperatura, botones para intercambiar las semiceldas y construir una celda de concentración, una casilla para conectar la bombilla, controles de tiempo y Restablecer todo.",
+        "interactionHint": "Cambia una concentración y observa cómo el potencial se mueve a lo largo de la recta de Nernst."
+      },
+      "currentDetailsPattern": "Q vale {{q}} y log Q vale {{logQ}}. E estándar vale {{standard}} voltios y E vale {{value}} voltios. {{verdict}}",
+      "responses": {
+        "swapped": "Semiceldas intercambiadas. La reacción tal como está escrita se invierte.",
+        "concentrationCell": "Celda de concentración de cobre: 0,010 molar a la izquierda, 1,0 molar a la derecha.",
+        "equilibrium": "La celda ha alcanzado el equilibrio: E es cero y Q es igual a K."
+      }
+    },
+    "electrolysis": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra una celda electrolítica: un vaso de electrolito con dos electrodos conectados a una fuente de corriente continua, y tubos de recogida cuando se forman gases.",
+        "controlArea": "El área de control tiene un menú de celdas electrolíticas, un interruptor de encendido, un deslizador de voltaje, un botón Nueva prueba, una casilla para mostrar el cálculo de la ley de Faraday, controles de tiempo y Restablecer todo.",
+        "interactionHint": "Enciende la fuente por encima del voltaje mínimo y compara la cantidad de producto con la carga que ha circulado."
+      },
+      "currentDetailsPattern": "{{system}}. Fuente a {{voltage}} voltios, {{power}}. Corriente de {{current}} amperios. Carga de {{charge}} culombios después de {{time}}. {{products}}",
+      "powerOnState": "encendida",
+      "powerOffState": "apagada",
+      "responses": {
+        "powerOnPattern": "Encendida. Corriente de {{value}} amperios.",
+        "powerOnBelowMinimum": "Encendida, pero el voltaje está por debajo del mínimo: sin corriente.",
+        "powerOff": "Apagada.",
+        "newRun": "Nueva prueba: electrolito y electrodos nuevos.",
+        "tubeFull": "Un tubo de gas está lleno. La prueba se ha detenido.",
+        "anodeDissolved": "El ánodo se ha disuelto. La prueba se ha detenido."
+      }
     }
   },
   "preferences": {
     "title": "Simulación",
-    "exampleToggle": "Ejemplo de alternancia"
+    "conventionalCurrent": "Mostrar la corriente convencional (I) además del flujo de electrones"
   }
 }

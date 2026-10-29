@@ -21,24 +21,38 @@ import "./brand.js";
 
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import { Tandem } from "scenerystack/tandem";
+import ElectrochemistryColors from "./ElectrochemistryColors.js";
+import { ElectrolysisScreen } from "./electrolysis/ElectrolysisScreen.js";
+import { GalvanicCellScreen } from "./galvanic-cell/GalvanicCellScreen.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { SimPreferencesModel } from "./preferences/SimPreferencesModel.js";
-import { SimPreferencesNode } from "./preferences/SimPreferencesNode.js";
-import SimColors from "./SimColors.js";
-import { SimScreen } from "./sim-screen/SimScreen.js";
+import { NernstScreen } from "./nernst/NernstScreen.js";
+import { ElectrochemistryPreferencesModel } from "./preferences/ElectrochemistryPreferencesModel.js";
+import { ElectrochemistryPreferencesNode } from "./preferences/ElectrochemistryPreferencesNode.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
-  // Simulation-specific preferences; initial values come from simQueryParameters.
-  const simPreferences = new SimPreferencesModel(Tandem.ROOT.createTandem("preferences"));
+  // Simulation-specific preferences; initial values come from electrochemistryQueryParameters.
+  const simPreferences = new ElectrochemistryPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [
-    new SimScreen({
-      // The screen name Property updates automatically when the locale changes
-      name: stringManager.getScreenNames().simStringProperty,
-      tandem: Tandem.ROOT.createTandem("simScreen"),
-      backgroundColorProperty: SimColors.backgroundColorProperty,
+    new GalvanicCellScreen({
+      name: stringManager.getScreenNames().galvanicCellStringProperty,
+      tandem: Tandem.ROOT.createTandem("galvanicCellScreen"),
+      conventionalCurrentProperty: simPreferences.conventionalCurrentProperty,
+      backgroundColorProperty: ElectrochemistryColors.backgroundColorProperty,
+    }),
+    new NernstScreen({
+      name: stringManager.getScreenNames().nernstStringProperty,
+      tandem: Tandem.ROOT.createTandem("nernstScreen"),
+      conventionalCurrentProperty: simPreferences.conventionalCurrentProperty,
+      backgroundColorProperty: ElectrochemistryColors.backgroundColorProperty,
+    }),
+    new ElectrolysisScreen({
+      name: stringManager.getScreenNames().electrolysisStringProperty,
+      tandem: Tandem.ROOT.createTandem("electrolysisScreen"),
+      conventionalCurrentProperty: simPreferences.conventionalCurrentProperty,
+      backgroundColorProperty: ElectrochemistryColors.backgroundColorProperty,
     }),
   ];
 
@@ -53,7 +67,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new SimPreferencesNode(simPreferences, tandem),
+            createContent: (tandem: Tandem) => new ElectrochemistryPreferencesNode(simPreferences, tandem),
           },
         ],
       },
@@ -63,10 +77,9 @@ onReadyToLaunch(() => {
       },
     }),
 
-    // Optional: fill in credits shown in Help → About
     credits: {
-      leadDesign: "",
-      softwareDevelopment: "",
+      leadDesign: "Martin Veillette",
+      softwareDevelopment: "Martin Veillette",
       team: "",
       qualityAssurance: "",
     },

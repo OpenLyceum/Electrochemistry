@@ -1,135 +1,68 @@
-# Implementation Notes - SceneryStack Template
+# Electrochemistry: implementation notes
 
-Developer-facing notes on the **SceneryStackTemplate** scaffold. **Replace and expand this file when
-forking** to describe your sim's real architecture (see Stern Gerlach or Light Propagation for
-target quality). Until then, this documents what the template provides out of the box.
+Architecture and design decisions. The chemistry is in [`model.md`](model.md).
 
-## Architecture Overview
-
-SceneryStackTemplate is the fleet-canonical starting point for new SceneryStack sims (one or N screens).
-It demonstrates Model–View separation, color profiles, localization, reset behavior, accessibility
-reference wiring, and reusable common components — **without** domain physics.
+## Layout of the code
 
 ```
-main.ts
-  └─ SimScreen             (Screen<SimModel, SimScreenView>)
-       ├─ SimModel          state + logic  (src/sim-screen/model/)  ← stub: add physics here
-       └─ SimScreenView     visuals        (src/sim-screen/view/)
-            ├─ SimScreenSummaryContent     (PDOM overview — reference a11y pattern)
-            └─ SimKeyboardHelpContent      (keyboard help dialog)
-
-src/common/
-  ├─ SimPanel.ts           pre-themed panel (uses SimColors)
-  ├─ SimButtonOptions.ts   flat button / combo-box option bundles
-  └─ TimeModel.ts          composable play/pause + elapsed time
-
-src/preferences/
-  ├─ SimPreferencesModel   sim-specific pref state
-  ├─ SimPreferencesNode    pref UI in Preferences → Simulation
-  └─ simQueryParameters    QueryStringMachine declarations
+src/
+  common/model/      HalfCells, Nernst (pure functions), ElectrochemicalCell, ElectrolysisSystems, timeScale
+  common/view/       GalvanicCellNode, HalfCellBeakerNode, ElectronFlowNode, MeterNode,
+                     formatValues, ControlFactory, halfCellColors, halfCellChoices, createTimeControl
+  galvanic-cell/     GalvanicCellModel (cell + clock + display options) and its view
+  nernst/            NernstModel (cell + log-concentration sliders + °C) and its view, NernstChartNode
+  electrolysis/      ElectrolysisModel and its view, ElectrolysisCellNode
 ```
 
-Data flows Model → View through AXON `Property` objects (`.link()` / `.lazyLink()`). The view never
-integrates physics; the model never imports scenery.
+## Decisions
 
-## Forking checklist
+**One cell model, two screens.** `ElectrochemicalCell` holds two `HalfCellState`s (half-cell,
+concentration, electrode mass) and derives the potential, the voltmeter reading and the anode
+side. The Galvanic Cell and Nernst screens each own an instance, so they don't share state.
+Choosing a new half-cell gives that beaker fresh solution and a fresh electrode and restarts the
+run's clock and charge.
 
-### Automated rename + scaffold (recommended)
+**Pure thermodynamics.** `Nernst.ts` takes half-cells and concentrations and returns numbers. The
+electrode-by-electrode form (E = E° + (νRT/nF) ln[Ox]) is what the cell uses; the textbook
+overall form (n = lcm, Q) is what the Nernst screen displays. A test checks they agree.
 
-```sh
-npm run rename -- --id my-sim --name "My Simulation"
-npm run scaffold-screens -- --screens Intro,Lab   # or omit --screens for one screen
-npm run check
-```
+**Integration.** The run-down is a stiff-ish problem near depletion (current ∝ [Ox] at the end).
+Rather than a fancy solver, `ElectrochemicalCell.step` takes substeps that change neither ion
+amount by more than 2 %, up to 400 per frame; any time left over is dropped rather than integrated
+coarsely. Concentrations never go below 10⁻¹⁵ M, so logarithms stay finite. Once the current is
+below 1 µA, the rest of the frame's time passes with no current. Electrolysis uses the same
+substep limit for CuCl₂. It also cuts the last substep so a gas tube ends exactly at 50 mL.
 
-Or from the workspace: `Baton/scripts/create-sim.sh --repo MySim --name "My Simulation"`.
+**Log-scale sliders.** `NernstModel` keeps a log₁₀ concentration Property per side, synced both
+ways with the cell's concentration. When the running cell pushes a concentration outside
+10⁻⁴…2 M, the slider pins at its end while the model keeps the true value.
 
-`scripts/rename-sim.ts` updates sim-level identifiers (package id, Colors, Preferences).
-`scripts/scaffold-screens.ts` emits fleet-named screen folders and wires main/strings/icons.
+**Self-fitting chart.** `NernstChartNode` refits its axes only when the content leaves the range
+or fills less than a third of it, so the axes hold still while a slider moves. log K is put on
+the chart when |log K| ≤ 60; otherwise an "off the chart" note gives its value. Tick labels are
+rebuilt with `setCreateLabel`, which also clears bamboo's label cache, whenever the step changes.
 
-### Manual steps (after rename/scaffold or if skipping the scripts)
+**Numbers that overflow.** K for Mg | Ag is about 10¹⁰⁷. `fromLog` formats a value from its base-10
+logarithm, so nothing is ever exponentiated past double range.
 
-1. **`doc/model.md`** — educator physics (equations, ranges, simplifications).
-2. **`doc/implementation-notes.md`** — this file, rewritten for your architecture.
-3. **Screen model(s)** — real Properties, `step(dt)`, `reset()`; compose `TimeModel` if animated.
-4. **Screen view(s)** — play area + controls; wire `ResetAllButton` to `model.reset()`.
-5. **`*Colors.ts`** — sim palette (default + projector profiles).
-6. **Locale JSON** — title, strings, `a11y` keys; register locales in `init.ts`.
-7. **`public/icons/icon.svg`** → `npm run icons`; align theme color in `index.html` / vite config.
-8. **`tests/setup.ts`** — `init({ name: … })` must match `package.json` name after rename.
-9. **`AGENTS.md`** — sim-specific file map and pitfalls for AI assistants.
+**Drawing.** `GalvanicCellNode` is drawn once in local coordinates (500 × 400) and scaled (0.92 on
+the Galvanic Cell screen, 0.6 on Nernst). Electrode width ∝ √(mass) makes the change visible
+without hiding a thin anode too early. Ion particles follow the concentration: 10 per mole per
+litre, at most 30. A dissolving electrode adds them beside itself, and a plating one removes the
+nearest. Electron speed and bridge-ion drift scale with the current, up to 1 A.
 
-## Common components (keep when forking)
+**Disposal.** Models, screen views and panels live for the whole sim. What is created and
+disposed at runtime is drawing content: ion particles, the hydrogen electrode's parts,
+electrolysis electrodes, wires and electron flows (`disposeChildren`). The leak suite covers
+those node types.
 
-### SimPanel
+**Strings.** Chemical formulas and reactions are RichText markup built in code
+(`formatValues.ts`, `ElectrolysisSystems.ts`); only the words around them are localized.
+Screen-reader text uses the plain forms (`ionPlain`, `formulaPlain`).
 
-Every control panel should use `SimPanel` so projector-mode switching is automatic:
+## Possible extensions
 
-```typescript
-import { SimPanel } from "../../common/SimPanel.js";
-const panel = new SimPanel(content);
-const panelWide = new SimPanel(content, { xMargin: 20 });
-```
-
-### TimeModel
-
-Compose into your screen model for animation (do not subclass `TimeModel`):
-
-```typescript
-export class MyModel implements TModel {
-  public readonly timer = new TimeModel();  // pass true to auto-play on startup
-
-  public step(dt: number): void {
-    this.timer.step(dt);
-    // physics uses this.timer.timeProperty.value
-  }
-  public reset(): void { this.timer.reset(); /* restore initial state */ }
-}
-```
-
-Wire `TimeControlNode` to `model.timer.isPlayingProperty` in the view.
-
-### SimButtonOptions
-
-Spread flat button options into every push/round button and `TimeControlNode` (see `AGENTS.md`).
-Use `SIM_COMBO_BOX_OPTIONS` + `LIGHT_SURFACE_TEXT_FILL` for light control surfaces on dark panels.
-
-## Accessibility (reference implementation)
-
-The template is the **canonical OpenLyceum a11y reference**:
-
-- PDOM `accessibleName` on interactive nodes (prefer live `StringProperty`s).
-- `SimScreenSummaryContent` with a live `currentDetailsContent` `DerivedProperty` over model state.
-- Explicit `pdomOrder` + `SimKeyboardHelpContent`.
-- Strings under `a11y` in locale JSON → `StringManager.getA11yStrings()`.
-
-Full checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
-
-## Testing (fleet layout — keep when forking)
-
-| Path | Purpose |
-|---|---|
-| `vitest.config.ts` | `happy-dom`; `setupFiles: ["./tests/setup.ts"]`; `execArgv: ["--expose-gc"]` |
-| `tests/setup.ts` | Canvas/AudioContext mocks + `init()` before SceneryStack imports |
-| `tests/TimeModel.test.ts` | **Replace** with real model/physics tests mirroring `src/` |
-| `tests/memory-leak.test.ts` | WeakRef + `forceGC` dispose regression |
-| `tests/fuzz/fuzz.spec.ts` | Optional Playwright smoke via `?fuzz` |
-
-Run `npm test`. Expand `memory-leak.test.ts` when adding runtime-created nodes or Property links.
-
-## Multi-screen simulations
-
-Default is single-screen. To add screens, see **`doc/multi-screen.md`**: per-screen folders mirroring
-`src/sim-screen/`, `StringManager` screen-name getters, optional shared root model, a shared
-`src/common/{SimName}ScreenIcons.ts` module (`create{Screen}Icon()` factories wired as
-`homeScreenIcon` / `navigationBarIcon`), and register all screens in `main.ts`.
-
-## PWA
-
-After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).
-
-## Known template stubs (remove when forking)
-
-- `SimModel.step()` / `reset()` — empty placeholders until you add physics.
-- Placeholder play-area content in `SimScreenView` — replace with real UI.
-- `tests/TimeModel.test.ts` — sample only; add tests for your model under `tests/`.
+- An overpotential option for electrolysis (water at ~1.8 V, brine giving Cl₂ rather than O₂).
+- More half-cells (Sn, Cd, Au, Cl₂/Cl⁻ on graphite, Fe³⁺/Fe²⁺ on platinum).
+- A terminal voltage under load (E − I·r) on the voltmeter.
+- A batteries screen (lead–acid, alkaline, lithium-ion).

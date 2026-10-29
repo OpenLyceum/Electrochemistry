@@ -1,21 +1,187 @@
 {
-  "title": "SceneryStack Template",
+  "title": "Electrochemistry",
   "screens": {
-    "sim": "Sim"
+    "galvanicCell": "Galvanic Cell",
+    "nernst": "Nernst",
+    "electrolysis": "Electrolysis"
+  },
+  "halfCells": {
+    "mg": "Magnesium",
+    "al": "Aluminum",
+    "zn": "Zinc",
+    "fe": "Iron",
+    "ni": "Nickel",
+    "pb": "Lead",
+    "h2": "Hydrogen (SHE)",
+    "cu": "Copper",
+    "ag": "Silver"
+  },
+  "systems": {
+    "copperPlating": "Copper plating",
+    "silverPlating": "Silver plating a spoon",
+    "copperChloride": "Copper(II) chloride",
+    "water": "Water"
+  },
+  "common": {
+    "halfCellMenuPattern": "{{name}}: {{couple}}",
+    "anode": "Anode",
+    "cathode": "Cathode",
+    "anodeSign": "Anode (−)",
+    "cathodeSign": "Cathode (+)",
+    "oxidation": "oxidation",
+    "reduction": "reduction",
+    "saltBridge": "Salt bridge",
+    "connectBulb": "Connect light bulb",
+    "ions": "Ions",
+    "reactions": "Reactions",
+    "leftHalfCell": "Left half-cell",
+    "rightHalfCell": "Right half-cell",
+    "voltmeter": "Voltmeter",
+    "voltsPattern": "{{value}} V",
+    "ampsPattern": "{{value}} A",
+    "molarPattern": "{{value}} M",
+    "hoursPattern": "{{value}} h",
+    "minutesPattern": "{{minutes}} min {{seconds}} s",
+    "time": "Time",
+    "current": "Current",
+    "charge": "Charge",
+    "coulombsPattern": "{{value}} C",
+    "openCircuit": "Salt bridge out: the circuit is open.",
+    "anodeGone": "The anode has dissolved away.",
+    "currentDied": "No current: the cathode's ion is used up.",
+    "equilibrium": "No current: the cell is at equilibrium.",
+    "cellNotationPattern": "Cell notation: {{notation}}",
+    "anodeReactionPattern": "Anode (oxidation): {{reaction}}",
+    "cathodeReactionPattern": "Cathode (reduction): {{reaction}}",
+    "overallReactionPattern": "Overall: {{reaction}}",
+    "standardPotentialPattern": "E°<sub>cell</sub> = E°<sub>cathode</sub> − E°<sub>anode</sub> = {{cathode}} V − ({{anode}} V) = {{value}} V",
+    "sameHalfCells": "The same half-cell on both sides: at equal concentrations E = 0 and nothing happens.",
+    "concentrationRowPattern": "[{{ion}}]: {{value}} M",
+    "electrodeMassPattern": "{{metal}} electrode: {{value}} g ({{change}} g)",
+    "platinumElectrode": "Pt electrode: unchanged",
+    "conventionalCurrent": "I"
+  },
+  "galvanicCell": {
+    "halfCellsHeading": "Half-Cells",
+    "circuitHeading": "Circuit",
+    "showHeading": "Show",
+    "measurementsHeading": "Measurements",
+    "newCell": "New Cell"
+  },
+  "nernst": {
+    "concentrationsHeading": "Conditions",
+    "concentrationPattern": "{{side}} [{{ion}}]",
+    "left": "Left",
+    "right": "Right",
+    "temperature": "Temperature",
+    "celsiusPattern": "{{value}} °C",
+    "swap": "Swap Half-Cells",
+    "concentrationCell": "Concentration Cell",
+    "showEquation": "Equation",
+    "chartTitle": "Cell potential against reaction quotient",
+    "xAxis": "log<sub>10</sub> Q",
+    "yAxis": "E (V)",
+    "standardLabel": "Q = 1: E = E°",
+    "equilibriumLabel": "Q = K: E = 0",
+    "offChartPattern": "Q = K at log Q = {{value}}, off the chart",
+    "asWrittenPattern": "As written (left anode, right cathode): {{reaction}}",
+    "concentrationCellReactionPattern": "{{ion}}(aq, right) → {{ion}}(aq, left)",
+    "quotientPattern": "Q = {{expression}} = {{value}}",
+    "electronsPattern": "n = {{value}} electrons",
+    "nernstGeneral": "E = E° − (2.303 RT / nF) log Q",
+    "nernstPattern": "E = {{standard}} V − ({{slope}} V)({{logQ}}) = {{value}} V",
+    "gibbsPattern": "ΔG = −nFE = {{value}} kJ/mol",
+    "equilibriumConstantPattern": "K = {{value}}   (log K = {{log}})",
+    "spontaneous": "E > 0 and Q < K: spontaneous as written.",
+    "nonSpontaneous": "E < 0 and Q > K: the reverse reaction is spontaneous.",
+    "atEquilibrium": "E = 0 and Q = K: at equilibrium."
+  },
+  "electrolysis": {
+    "electrolyteHeading": "Electrolytic Cell",
+    "supplyHeading": "Power Supply",
+    "measurementsHeading": "Measurements",
+    "faradayHeading": "Faraday's Law",
+    "powerOn": "Power on",
+    "voltage": "Voltage",
+    "newRun": "New Run",
+    "showCalculation": "Show calculation",
+    "electrolytePattern": "Electrolyte: {{formula}}(aq), {{value}} M",
+    "minimumVoltagePattern": "Minimum voltage: {{value}} V",
+    "belowMinimum": "Below the minimum voltage: no current.",
+    "tubeFull": "A gas tube is full. Start a new run.",
+    "anodeDissolved": "The anode has dissolved. Start a new run.",
+    "cathodeMassPattern": "Cathode: {{value}} g ({{change}} g)",
+    "anodeMassPattern": "Anode: {{value}} g ({{change}} g)",
+    "gasVolumePattern": "{{gas}} collected: {{value}} mL",
+    "cationPattern": "[Cu<sup>2+</sup>]: {{value}} M",
+    "chargePattern": "Q = ∫I dt = {{value}} C",
+    "electronMolesPattern": "n(e<sup>−</sup>) = Q / F = {{value}} mol",
+    "productMolesPattern": "n({{formula}}) = n(e<sup>−</sup>) / {{electrons}} = {{value}} mol",
+    "productMassPattern": "m({{formula}}) = {{moles}} mol × {{molarMass}} g/mol = {{value}} g",
+    "productVolumePattern": "V({{formula}}) = {{moles}} mol × {{molarVolume}} L/mol = {{value}} mL",
+    "plated": "plated",
+    "dissolved": "dissolved",
+    "productHeadingPattern": "{{electrode}}: {{formula}} {{action}}",
+    "collected": "collected",
+    "supplyCaption": "DC power supply"
   },
   "a11y": {
-    "screenSummary": {
-      "playArea": "The play area shows the main simulation content.",
-      "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-      "interactionHint": "Explore the simulation by interacting with its controls."
+    "galvanicCell": {
+      "screenSummary": {
+        "playArea": "The play area shows a galvanic cell: two beakers, each with a metal electrode in a solution of its ion, joined by a salt bridge. A voltmeter is connected across the electrodes, and a wire with a light bulb and a switch joins them.",
+        "controlArea": "The control area has menus for the left and right half-cells, checkboxes for the salt bridge and the light bulb, checkboxes to show the reactions and the ions, a New Cell button, time controls, and Reset All.",
+        "interactionHint": "Choose two half-cells, then connect the light bulb and play to watch the cell run down."
+      },
+      "currentDetailsPattern": "Left: {{left}}. Right: {{right}}. The voltmeter reads {{voltage}} volts. {{state}}",
+      "anodeIsPattern": "The {{anode}} electrode is the anode and the {{cathode}} electrode is the cathode.",
+      "noReaction": "Both electrodes are at the same potential.",
+      "currentPattern": "A current of {{value}} amperes flows.",
+      "halfCellPattern": "{{name}}, {{concentration}} molar",
+      "responses": {
+        "bulbConnectedPattern": "Bulb connected. Electrons flow from the {{anode}} anode to the {{cathode}} cathode, and the bulb lights.",
+        "bulbConnectedNoCurrent": "Bulb connected, but no current flows.",
+        "bulbDisconnected": "Bulb disconnected. No current flows.",
+        "saltBridgeRemoved": "Salt bridge removed. The circuit is open and the voltmeter reads zero.",
+        "saltBridgeInsertedPattern": "Salt bridge in place. The voltmeter reads {{value}} volts.",
+        "currentDied": "The current has died away: the cathode's ion is used up.",
+        "anodeGone": "The anode has dissolved away.",
+        "newCell": "Fresh solutions and electrodes."
+      }
     },
-    "currentDetails": "The simulation is in its initial state.",
-    "controls": {
-      "exampleControl": "Example control"
+    "nernst": {
+      "screenSummary": {
+        "playArea": "The play area shows a small galvanic cell, a chart of cell potential against the logarithm of the reaction quotient, and the Nernst equation worked out for the present concentrations.",
+        "controlArea": "The control area has menus for the two half-cells, sliders for each ion's concentration and the temperature, buttons to swap the half-cells and build a concentration cell, a checkbox to connect the light bulb, time controls, and Reset All.",
+        "interactionHint": "Change a concentration and watch the potential move along the Nernst line."
+      },
+      "currentDetailsPattern": "Q is {{q}} and log Q is {{logQ}}. E standard is {{standard}} volts and E is {{value}} volts. {{verdict}}",
+      "responses": {
+        "swapped": "Half-cells swapped. The reaction as written is reversed.",
+        "concentrationCell": "Copper concentration cell: 0.010 molar on the left, 1.0 molar on the right.",
+        "equilibrium": "The cell has reached equilibrium: E is zero and Q equals K."
+      }
+    },
+    "electrolysis": {
+      "screenSummary": {
+        "playArea": "The play area shows an electrolytic cell: a beaker of electrolyte with two electrodes wired to a DC power supply, and gas-collection tubes when gases form.",
+        "controlArea": "The control area has a menu of electrolytic cells, a power switch, a voltage slider, a New Run button, a checkbox to show the Faraday's law calculation, time controls, and Reset All.",
+        "interactionHint": "Turn the power on above the minimum voltage and compare the amount of product with the charge passed."
+      },
+      "currentDetailsPattern": "{{system}}. Supply at {{voltage}} volts, {{power}}. Current {{current}} amperes. Charge passed {{charge}} coulombs after {{time}}. {{products}}",
+      "powerOnState": "on",
+      "powerOffState": "off",
+      "responses": {
+        "powerOnPattern": "Power on. Current {{value}} amperes.",
+        "powerOnBelowMinimum": "Power on, but the voltage is below the minimum: no current.",
+        "powerOff": "Power off.",
+        "newRun": "New run: fresh electrolyte and electrodes.",
+        "tubeFull": "A gas tube is full. The run has stopped.",
+        "anodeDissolved": "The anode has dissolved. The run has stopped."
+      }
     }
   },
   "preferences": {
     "title": "Simulation",
-    "exampleToggle": "Example Toggle"
+    "conventionalCurrent": "Show conventional current (I) as well as electron flow"
   }
 }

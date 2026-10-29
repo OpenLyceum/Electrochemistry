@@ -1,21 +1,187 @@
 {
-  "title": "Modèle de Simulation",
+  "title": "Électrochimie",
   "screens": {
-    "sim": "Simulation"
+    "galvanicCell": "Pile galvanique",
+    "nernst": "Nernst",
+    "electrolysis": "Électrolyse"
+  },
+  "halfCells": {
+    "mg": "Magnésium",
+    "al": "Aluminium",
+    "zn": "Zinc",
+    "fe": "Fer",
+    "ni": "Nickel",
+    "pb": "Plomb",
+    "h2": "Hydrogène (ESH)",
+    "cu": "Cuivre",
+    "ag": "Argent"
+  },
+  "systems": {
+    "copperPlating": "Cuivrage",
+    "silverPlating": "Argenture d'une cuillère",
+    "copperChloride": "Chlorure de cuivre(II)",
+    "water": "Eau"
+  },
+  "common": {
+    "halfCellMenuPattern": "{{name}} : {{couple}}",
+    "anode": "Anode",
+    "cathode": "Cathode",
+    "anodeSign": "Anode (−)",
+    "cathodeSign": "Cathode (+)",
+    "oxidation": "oxydation",
+    "reduction": "réduction",
+    "saltBridge": "Pont salin",
+    "connectBulb": "Brancher l'ampoule",
+    "ions": "Ions",
+    "reactions": "Réactions",
+    "leftHalfCell": "Demi-pile de gauche",
+    "rightHalfCell": "Demi-pile de droite",
+    "voltmeter": "Voltmètre",
+    "voltsPattern": "{{value}} V",
+    "ampsPattern": "{{value}} A",
+    "molarPattern": "{{value}} M",
+    "hoursPattern": "{{value}} h",
+    "minutesPattern": "{{minutes}} min {{seconds}} s",
+    "time": "Temps",
+    "current": "Courant",
+    "charge": "Charge",
+    "coulombsPattern": "{{value}} C",
+    "openCircuit": "Pont salin retiré : le circuit est ouvert.",
+    "anodeGone": "L'anode s'est entièrement dissoute.",
+    "currentDied": "Aucun courant : l'ion de la cathode est épuisé.",
+    "equilibrium": "Aucun courant : la pile est à l'équilibre.",
+    "cellNotationPattern": "Notation de la pile : {{notation}}",
+    "anodeReactionPattern": "Anode (oxydation) : {{reaction}}",
+    "cathodeReactionPattern": "Cathode (réduction) : {{reaction}}",
+    "overallReactionPattern": "Bilan : {{reaction}}",
+    "standardPotentialPattern": "E°<sub>pile</sub> = E°<sub>cathode</sub> − E°<sub>anode</sub> = {{cathode}} V − ({{anode}} V) = {{value}} V",
+    "sameHalfCells": "La même demi-pile des deux côtés : à concentrations égales, E = 0 et rien ne se passe.",
+    "concentrationRowPattern": "[{{ion}}] : {{value}} M",
+    "electrodeMassPattern": "Électrode de {{metal}} : {{value}} g ({{change}} g)",
+    "platinumElectrode": "Électrode de Pt : inchangée",
+    "conventionalCurrent": "I"
+  },
+  "galvanicCell": {
+    "halfCellsHeading": "Demi-piles",
+    "circuitHeading": "Circuit",
+    "showHeading": "Afficher",
+    "measurementsHeading": "Mesures",
+    "newCell": "Nouvelle pile"
+  },
+  "nernst": {
+    "concentrationsHeading": "Conditions",
+    "concentrationPattern": "{{side}} [{{ion}}]",
+    "left": "Gauche",
+    "right": "Droite",
+    "temperature": "Température",
+    "celsiusPattern": "{{value}} °C",
+    "swap": "Inverser les demi-piles",
+    "concentrationCell": "Pile de concentration",
+    "showEquation": "Équation",
+    "chartTitle": "Potentiel de la pile en fonction du quotient réactionnel",
+    "xAxis": "log<sub>10</sub> Q",
+    "yAxis": "E (V)",
+    "standardLabel": "Q = 1 : E = E°",
+    "equilibriumLabel": "Q = K : E = 0",
+    "offChartPattern": "Q = K à log Q = {{value}}, hors du graphique",
+    "asWrittenPattern": "Telle qu'écrite (anode à gauche, cathode à droite) : {{reaction}}",
+    "concentrationCellReactionPattern": "{{ion}}(aq, droite) → {{ion}}(aq, gauche)",
+    "quotientPattern": "Q = {{expression}} = {{value}}",
+    "electronsPattern": "n = {{value}} électrons",
+    "nernstGeneral": "E = E° − (2,303 RT / nF) log Q",
+    "nernstPattern": "E = {{standard}} V − ({{slope}} V)({{logQ}}) = {{value}} V",
+    "gibbsPattern": "ΔG = −nFE = {{value}} kJ/mol",
+    "equilibriumConstantPattern": "K = {{value}}   (log K = {{log}})",
+    "spontaneous": "E > 0 et Q < K : spontanée telle qu'écrite.",
+    "nonSpontaneous": "E < 0 et Q > K : c'est la réaction inverse qui est spontanée.",
+    "atEquilibrium": "E = 0 et Q = K : à l'équilibre."
+  },
+  "electrolysis": {
+    "electrolyteHeading": "Cellule d'électrolyse",
+    "supplyHeading": "Alimentation",
+    "measurementsHeading": "Mesures",
+    "faradayHeading": "Loi de Faraday",
+    "powerOn": "Sous tension",
+    "voltage": "Tension",
+    "newRun": "Nouvel essai",
+    "showCalculation": "Afficher le calcul",
+    "electrolytePattern": "Électrolyte : {{formula}}(aq), {{value}} M",
+    "minimumVoltagePattern": "Tension minimale : {{value}} V",
+    "belowMinimum": "Sous la tension minimale : aucun courant.",
+    "tubeFull": "Un tube à gaz est plein. Commencez un nouvel essai.",
+    "anodeDissolved": "L'anode s'est dissoute. Commencez un nouvel essai.",
+    "cathodeMassPattern": "Cathode : {{value}} g ({{change}} g)",
+    "anodeMassPattern": "Anode : {{value}} g ({{change}} g)",
+    "gasVolumePattern": "{{gas}} recueilli : {{value}} mL",
+    "cationPattern": "[Cu<sup>2+</sup>] : {{value}} M",
+    "chargePattern": "Q = ∫I dt = {{value}} C",
+    "electronMolesPattern": "n(e<sup>−</sup>) = Q / F = {{value}} mol",
+    "productMolesPattern": "n({{formula}}) = n(e<sup>−</sup>) / {{electrons}} = {{value}} mol",
+    "productMassPattern": "m({{formula}}) = {{moles}} mol × {{molarMass}} g/mol = {{value}} g",
+    "productVolumePattern": "V({{formula}}) = {{moles}} mol × {{molarVolume}} L/mol = {{value}} mL",
+    "plated": "déposé",
+    "dissolved": "dissous",
+    "productHeadingPattern": "{{electrode}} : {{formula}} {{action}}",
+    "collected": "recueilli",
+    "supplyCaption": "Alimentation c.c."
   },
   "a11y": {
-    "screenSummary": {
-      "playArea": "La zone de jeu affiche le contenu principal de la simulation.",
-      "controlArea": "La zone de contrôle comporte un bouton Tout réinitialiser qui ramène la simulation à son état initial.",
-      "interactionHint": "Explorez la simulation en interagissant avec ses commandes."
+    "galvanicCell": {
+      "screenSummary": {
+        "playArea": "La zone de jeu montre une pile galvanique : deux béchers, chacun avec une électrode métallique plongée dans une solution de son ion, reliés par un pont salin. Un voltmètre est branché entre les électrodes, et un fil muni d'une ampoule et d'un interrupteur les relie.",
+        "controlArea": "La zone de contrôle comporte des menus pour les demi-piles de gauche et de droite, des cases à cocher pour le pont salin et l'ampoule, des cases pour afficher les réactions et les ions, un bouton Nouvelle pile, les commandes de temps et Tout réinitialiser.",
+        "interactionHint": "Choisissez deux demi-piles, puis branchez l'ampoule et lancez le temps pour voir la pile se décharger."
+      },
+      "currentDetailsPattern": "Gauche : {{left}}. Droite : {{right}}. Le voltmètre indique {{voltage}} volts. {{state}}",
+      "anodeIsPattern": "L'électrode de {{anode}} est l'anode et l'électrode de {{cathode}} est la cathode.",
+      "noReaction": "Les deux électrodes sont au même potentiel.",
+      "currentPattern": "Un courant de {{value}} ampères circule.",
+      "halfCellPattern": "{{name}}, {{concentration}} molaire",
+      "responses": {
+        "bulbConnectedPattern": "Ampoule branchée. Les électrons circulent de l'anode de {{anode}} vers la cathode de {{cathode}}, et l'ampoule s'allume.",
+        "bulbConnectedNoCurrent": "Ampoule branchée, mais aucun courant ne circule.",
+        "bulbDisconnected": "Ampoule débranchée. Aucun courant ne circule.",
+        "saltBridgeRemoved": "Pont salin retiré. Le circuit est ouvert et le voltmètre indique zéro.",
+        "saltBridgeInsertedPattern": "Pont salin en place. Le voltmètre indique {{value}} volts.",
+        "currentDied": "Le courant s'est éteint : l'ion de la cathode est épuisé.",
+        "anodeGone": "L'anode s'est entièrement dissoute.",
+        "newCell": "Solutions et électrodes neuves."
+      }
     },
-    "currentDetails": "La simulation est dans son état initial.",
-    "controls": {
-      "exampleControl": "Contrôle d'exemple"
+    "nernst": {
+      "screenSummary": {
+        "playArea": "La zone de jeu montre une petite pile galvanique, un graphique du potentiel de la pile en fonction du logarithme du quotient réactionnel, et l'équation de Nernst calculée pour les concentrations actuelles.",
+        "controlArea": "La zone de contrôle comporte des menus pour les deux demi-piles, des curseurs pour la concentration de chaque ion et la température, des boutons pour inverser les demi-piles et construire une pile de concentration, une case pour brancher l'ampoule, les commandes de temps et Tout réinitialiser.",
+        "interactionHint": "Modifiez une concentration et observez le potentiel se déplacer le long de la droite de Nernst."
+      },
+      "currentDetailsPattern": "Q vaut {{q}} et log Q vaut {{logQ}}. E standard vaut {{standard}} volts et E vaut {{value}} volts. {{verdict}}",
+      "responses": {
+        "swapped": "Demi-piles inversées. La réaction telle qu'écrite est inversée.",
+        "concentrationCell": "Pile de concentration au cuivre : 0,010 molaire à gauche, 1,0 molaire à droite.",
+        "equilibrium": "La pile a atteint l'équilibre : E est nul et Q est égal à K."
+      }
+    },
+    "electrolysis": {
+      "screenSummary": {
+        "playArea": "La zone de jeu montre une cellule d'électrolyse : un bécher d'électrolyte avec deux électrodes reliées à une alimentation en courant continu, et des tubes de collecte quand des gaz se forment.",
+        "controlArea": "La zone de contrôle comporte un menu de cellules d'électrolyse, un interrupteur d'alimentation, un curseur de tension, un bouton Nouvel essai, une case pour afficher le calcul de la loi de Faraday, les commandes de temps et Tout réinitialiser.",
+        "interactionHint": "Mettez sous tension au-dessus de la tension minimale et comparez la quantité de produit à la charge qui a circulé."
+      },
+      "currentDetailsPattern": "{{system}}. Alimentation à {{voltage}} volts, {{power}}. Courant {{current}} ampères. Charge de {{charge}} coulombs après {{time}}. {{products}}",
+      "powerOnState": "sous tension",
+      "powerOffState": "hors tension",
+      "responses": {
+        "powerOnPattern": "Sous tension. Courant de {{value}} ampères.",
+        "powerOnBelowMinimum": "Sous tension, mais la tension est inférieure au minimum : aucun courant.",
+        "powerOff": "Hors tension.",
+        "newRun": "Nouvel essai : électrolyte et électrodes neufs.",
+        "tubeFull": "Un tube à gaz est plein. L'essai s'est arrêté.",
+        "anodeDissolved": "L'anode s'est dissoute. L'essai s'est arrêté."
+      }
     }
   },
   "preferences": {
     "title": "Simulation",
-    "exampleToggle": "Exemple de bascule"
+    "conventionalCurrent": "Afficher le sens conventionnel du courant (I) en plus du déplacement des électrons"
   }
 }
