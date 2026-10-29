@@ -25,7 +25,7 @@ export class GalvanicCellScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: GalvanicCellModel) {
     const a11y = StringManager.getInstance().getGalvanicCellA11yStrings();
     const cell = model.cell;
-    const describe = (state: HalfCellState) =>
+    const halfCellDescription = (state: HalfCellState) =>
       StringUtils.fillIn(a11y.halfCellPatternStringProperty.value, {
         name: halfCellNameProperty(state.halfCellProperty.value.id).value,
         concentration: formatConcentration(state.concentrationProperty.value),
@@ -57,8 +57,8 @@ export class GalvanicCellScreenSummaryContent extends ScreenSummaryContent {
           state += ` ${StringUtils.fillIn(a11y.currentPatternStringProperty.value, { value: formatCurrent(current) })}`;
         }
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
-          left: describe(cell.left),
-          right: describe(cell.right),
+          left: halfCellDescription(cell.left),
+          right: halfCellDescription(cell.right),
           voltage: formatPotential(reading),
           state,
         });
