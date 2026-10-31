@@ -44,8 +44,11 @@ function logConcentrationProperty(
   side: keyof ConcentrationSliderHeld,
   held: ConcentrationSliderHeld,
 ): NumberProperty {
+  // Reentrant: an off-track step sets the concentration from this Property's own listener, and
+  // the concentration's listener pins this Property again before that notification has finished.
   const property = new NumberProperty(Math.log10(state.concentrationProperty.value), {
     range: LOG_CONCENTRATION_RANGE,
+    reentrant: true,
   });
   // Property notifications are queued, so a guard flag cleared at the end of a listener does not
   // cover the write-back. Count the notifications this function itself causes and skip them.

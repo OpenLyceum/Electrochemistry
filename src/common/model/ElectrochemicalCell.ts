@@ -101,7 +101,7 @@ export class ElectrochemicalCell {
   public readonly circuitClosedProperty = new BooleanProperty(false);
 
   /** Current (A); positive when electrons flow through the wire from left to right (left is the anode). */
-  public readonly currentProperty = new NumberProperty(0, { units: "A" });
+  public readonly currentProperty: TReadOnlyProperty<number>;
 
   /** Charge passed since the cell was built (C). */
   public readonly chargeProperty = new NumberProperty(0, { units: "C" });
@@ -155,6 +155,18 @@ export class ElectrochemicalCell {
         return !isGasElectrode(anode.halfCellProperty.value) && (anodeSide === "left" ? leftMass : rightMass) <= 0;
       },
     );
+    this.currentProperty = new DerivedProperty(
+      [
+        this.potentialProperty,
+        this.left.concentrationProperty,
+        this.right.concentrationProperty,
+        this.saltBridgeProperty,
+        this.circuitClosedProperty,
+        this.anodeGoneProperty,
+      ],
+      () => this.computeCurrent(),
+      { units: "A" },
+    );
 
     // A new half-cell gets fresh solution and a fresh electrode; the run starts over.
     const rebuild = (state: HalfCellState) => () => {
@@ -163,8 +175,6 @@ export class ElectrochemicalCell {
     };
     this.left.halfCellProperty.lazyLink(rebuild(this.left));
     this.right.halfCellProperty.lazyLink(rebuild(this.right));
-    this.saltBridgeProperty.lazyLink(() => this.updateCurrent());
-    this.circuitClosedProperty.lazyLink(() => this.updateCurrent());
   }
 
   public stateOf(side: Side): HalfCellState {
@@ -187,7 +197,6 @@ export class ElectrochemicalCell {
   public restartRun(): void {
     this.chargeProperty.reset();
     this.elapsedTimeProperty.reset();
-    this.updateCurrent();
   }
 
   /** Current (A, signed as currentProperty) for the present state, without advancing time. */
@@ -203,17 +212,12 @@ export class ElectrochemicalCell {
     return potential / resistance;
   }
 
-  private updateCurrent(): void {
-    this.currentProperty.value = this.computeCurrent();
-  }
-
   /**
    * Advances the cell by `dt` simulated seconds. Does nothing (and shows no current) unless the
    * circuit is complete.
    */
   public step(dt: number): void {
     if (!this.canConduct) {
-      this.currentProperty.value = 0;
       return;
     }
     let remaining = dt;
@@ -258,7 +262,6 @@ export class ElectrochemicalCell {
       remaining -= h;
     }
     // Any time left after MAX_SUBSTEPS is dropped rather than integrated coarsely.
-    this.updateCurrent();
   }
 
   public reset(): void {

@@ -174,6 +174,11 @@ export class NernstScreenView extends ScreenView {
           shiftKeyboardStep: 0.01,
           pageKeyboardStep: 1,
           constrainValue: (value: number) => Math.round(value / 0.01) * 0.01,
+          pdomCreateAriaValueText: () =>
+            StringUtils.fillIn(common.molarPatternStringProperty.value, {
+              value: formatConcentration(state.concentrationProperty.value),
+            }),
+          pdomDependencies: [common.molarPatternStringProperty, state.concentrationProperty],
         },
         accessibleName: titleProperty,
       });
@@ -259,7 +264,9 @@ export class NernstScreenView extends ScreenView {
         const cathode = cell.right.halfCellProperty.value;
         const reaction =
           anode === cathode
-            ? StringUtils.fillIn(strings.concentrationCellReactionPatternStringProperty.value, { ion: cathode.ion })
+            ? StringUtils.fillIn(strings.concentrationCellReactionPatternStringProperty.value, {
+                ion: `${cathode.ionCoefficient === 1 ? "" : cathode.ionCoefficient}${cathode.ion}`,
+              })
             : overallReaction(cathode, anode);
         reactionLine.string = StringUtils.fillIn(strings.asWrittenPatternStringProperty.value, { reaction });
         electronsLine.string = StringUtils.fillIn(strings.electronsPatternStringProperty.value, {

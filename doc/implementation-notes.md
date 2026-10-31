@@ -21,6 +21,8 @@ concentration, electrode mass) and derives the potential, the voltmeter reading 
 side. The Galvanic Cell and Nernst screens each own an instance, so they don't share state.
 Choosing a new half-cell gives that beaker fresh solution and a fresh electrode and restarts the
 run's clock and charge.
+Current is derived from the present potential, concentrations, circuit, salt bridge and anode
+availability, so condition edits refresh it even while paused without advancing charge or time.
 
 **Pure thermodynamics.** `Nernst.ts` takes half-cells and concentrations and returns numbers. The
 electrode-by-electrode form (E = E° + (νRT/nF) ln[Ox]) is what the cell uses; the textbook
@@ -44,8 +46,8 @@ rebuild disposes the rest.
 
 **Log-scale sliders.** `NernstModel` keeps a log₁₀ concentration Property per side, synced both
 ways with the cell's concentration. When the running cell pushes a concentration outside
-10⁻⁴…2 M, the thumb pins at the end of the track and the number readout keeps the true
-concentration. Arrow and keyboard steps then move that true value. Dragging the thumb or
+10⁻⁴…2 M, the thumb pins at the end of the track while the number readout and the slider's
+screen-reader value keep the true concentration. Arrow and keyboard steps then move that true value. Dragging the thumb or
 clicking the track sets a concentration on the scale.
 
 **Self-fitting chart.** `NernstChartNode` refits its axes only when the content leaves the range
@@ -70,6 +72,10 @@ those node types.
 **Strings.** Chemical formulas and reactions are RichText markup built in code
 (`formatValues.ts`, `ElectrolysisSystems.ts`); only the words around them are localized.
 Screen-reader text uses the plain forms (`ionPlain`, `formulaPlain`).
+Concentration-cell reaction text preserves the half-cell's ion coefficient, including 2H⁺ for
+hydrogen, so the equation matches the electron count, Q and ΔG. Electrolysis power-on feedback
+checks completion before the voltage threshold and announces the existing tube-full or
+anode-dissolved response when a finished run cannot restart.
 
 ## Possible extensions
 
