@@ -118,7 +118,7 @@
     "electronMolesPattern": "n(e<sup>−</sup>) = Q / F = {{value}} mol",
     "productMolesPattern": "n({{formula}}) = n(e<sup>−</sup>) / {{electrons}} = {{value}} mol",
     "productMassPattern": "m({{formula}}) = {{moles}} mol × {{molarMass}} g/mol = {{value}} g",
-    "productVolumePattern": "V({{formula}}) = {{moles}} mol × {{molarVolume}} L/mol = {{value}} mL",
+    "productVolumePattern": "V({{formula}}) = {{moles}} mol × {{molarVolume}} L/mol = {{liters}} L = {{value}} mL",
     "plated": "plated",
     "dissolved": "dissolved",
     "productHeadingPattern": "{{electrode}}: {{formula}} {{action}}",

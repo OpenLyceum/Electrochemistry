@@ -7,7 +7,7 @@
 import { describe, expect, it } from "vitest";
 import { HALF_CELLS } from "../../src/common/model/HalfCells.js";
 import { ELECTRODE_MASS } from "../../src/ElectrochemistryConstants.js";
-import { NernstModel } from "../../src/nernst/model/NernstModel.js";
+import { LOG_CONCENTRATION_RANGE, NernstModel } from "../../src/nernst/model/NernstModel.js";
 
 /** A copper concentration cell that has run for 100 h of cell time, so its electrodes differ. */
 function runConcentrationCell(): NernstModel {
@@ -59,5 +59,49 @@ describe("NernstModel", () => {
     expect(left.concentrationProperty.value).toBe(0.01);
     expect(right.concentrationProperty.value).toBe(1);
     expect(model.cell.elapsedTimeProperty.value).toBe(0);
+  });
+
+  it("sets an in-range concentration from the log slider", () => {
+    const model = new NernstModel();
+    model.leftLogConcentrationProperty.value = -1;
+    expect(model.cell.left.concentrationProperty.value).toBeCloseTo(0.1, 10);
+    expect(model.leftLogConcentrationProperty.value).toBeCloseTo(-1, 10);
+  });
+
+  it("keeps a concentration the cell has driven off the track", () => {
+    const model = new NernstModel();
+    model.cell.right.concentrationProperty.value = 1e-8;
+    expect(model.cell.right.concentrationProperty.value).toBe(1e-8);
+    expect(model.rightLogConcentrationProperty.value).toBeCloseTo(LOG_CONCENTRATION_RANGE.min, 10);
+  });
+
+  it("steps an off-track concentration by the slider's delta", () => {
+    const model = new NernstModel();
+    model.cell.right.concentrationProperty.value = 1e-8;
+    const pin = model.rightLogConcentrationProperty.value;
+    model.rightLogConcentrationProperty.value = pin + 0.05;
+    expect(model.cell.right.concentrationProperty.value).toBeCloseTo(1e-8 * 10 ** 0.05, 12);
+    expect(model.rightLogConcentrationProperty.value).toBeCloseTo(LOG_CONCENTRATION_RANGE.min, 10);
+    model.rightLogConcentrationProperty.value = LOG_CONCENTRATION_RANGE.min + 0.05;
+    expect(model.cell.right.concentrationProperty.value).toBeCloseTo(1e-8 * 10 ** 0.1, 12);
+  });
+
+  it("steps down from a concentration above the track", () => {
+    const model = new NernstModel();
+    model.cell.left.concentrationProperty.value = 5;
+    const pin = model.leftLogConcentrationProperty.value;
+    expect(pin).toBeCloseTo(LOG_CONCENTRATION_RANGE.max, 10);
+    model.leftLogConcentrationProperty.value = pin - 0.05;
+    expect(model.cell.left.concentrationProperty.value).toBeCloseTo(5 * 10 ** -0.05, 10);
+    expect(model.leftLogConcentrationProperty.value).toBeCloseTo(LOG_CONCENTRATION_RANGE.max, 10);
+  });
+
+  it("writes the track value while a pointer is dragging the slider", () => {
+    const model = new NernstModel();
+    model.cell.right.concentrationProperty.value = 1e-8;
+    model.concentrationSliderHeld.right = true;
+    model.rightLogConcentrationProperty.value = -2;
+    expect(model.cell.right.concentrationProperty.value).toBeCloseTo(0.01, 10);
+    expect(model.rightLogConcentrationProperty.value).toBeCloseTo(-2, 10);
   });
 });

@@ -25,6 +25,7 @@ import type { TModel } from "scenerystack/joist";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import {
   ELECTROLYSIS_SYSTEMS,
+  type ElectrodeMaterial,
   type ElectrodeProduct,
   type ElectrolysisSystem,
   productMoles,
@@ -51,6 +52,62 @@ import {
 
 /** Molar volume of an ideal gas at 25 °C and 1 atm (mL/mol): 24 465 mL. */
 export const MOLAR_GAS_VOLUME = ((GAS_CONSTANT * STANDARD_TEMPERATURE) / STANDARD_PRESSURE) * 1e6;
+
+/**
+ * Amounts for the Faraday gas-volume line. Litres are the millilitre reading divided by 1000,
+ * so "0.0634 L = 63.4 mL" multiplies out, and litres per mole stays the textbook 24.47.
+ */
+export function gasEquationAmounts(molesAmount: number): {
+  molarVolumeLiters: number;
+  liters: number;
+  milliliters: number;
+} {
+  const milliliters = Number((molesAmount * MOLAR_GAS_VOLUME).toFixed(1));
+  return {
+    molarVolumeLiters: MOLAR_GAS_VOLUME / 1000,
+    liters: milliliters / 1000,
+    milliliters,
+  };
+}
+
+/**
+ * Mass a measurement should quote. A metal electrode reports its own mass. Metal plated onto
+ * a different electrode (silver on the steel spoon, copper on graphite) reports only the
+ * plated grams: those electrodes do not start as 10 g of the product.
+ */
+export function reportedElectrodeMass(
+  product: ElectrodeProduct,
+  material: ElectrodeMaterial,
+  mass: number,
+): { value: number; change: number } {
+  const platedOnSomethingElse =
+    product.kind === "metal" &&
+    !product.dissolves &&
+    !((product.formula === "Cu" && material === "copper") || (product.formula === "Ag" && material === "silver"));
+  if (platedOnSomethingElse) {
+    const plated = Math.max(0, mass - ELECTRODE_MASS);
+    return { value: plated, change: plated };
+  }
+  return { value: mass, change: mass - ELECTRODE_MASS };
+}
+
+/** Why the supply is or isn't passing current, for the power-switch announcement. */
+export type SupplyAnnouncement = "off" | "current" | "belowMinimum" | "tubeFull" | "anodeDissolved";
+
+export function supplyAnnouncement(state: {
+  on: boolean;
+  current: number;
+  finished: boolean;
+  anodeDissolves: boolean;
+}): SupplyAnnouncement {
+  if (!state.on) {
+    return "off";
+  }
+  if (state.finished) {
+    return state.anodeDissolves ? "anodeDissolved" : "tubeFull";
+  }
+  return state.current > 0 ? "current" : "belowMinimum";
+}
 
 /** Gas volume (mL) of a gaseous product after `charge` C; 0 for a metal. */
 export function gasVolume(product: ElectrodeProduct, charge: number): number {

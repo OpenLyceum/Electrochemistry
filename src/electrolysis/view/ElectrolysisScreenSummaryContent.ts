@@ -37,6 +37,7 @@ export class ElectrolysisScreenSummaryContent extends ScreenSummaryContent {
             model.cathodeMassProperty.value,
             model.cathodeGasVolumeProperty.value,
             true,
+            system.cathodeMaterial,
           ),
           productReadout(
             system.anodeProduct,
@@ -44,6 +45,7 @@ export class ElectrolysisScreenSummaryContent extends ScreenSummaryContent {
             model.anodeMassProperty.value,
             model.anodeGasVolumeProperty.value,
             true,
+            system.anodeMaterial,
           ),
         ].join(". ");
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {

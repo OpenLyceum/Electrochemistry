@@ -136,6 +136,7 @@ export class NernstScreenView extends ScreenView {
       showIonsProperty: new BooleanProperty(true),
       conventionalCurrentProperty: options.conventionalCurrentProperty,
       showLabels: false,
+      interactiveSaltBridge: false,
     });
     this.cellNode.setScaleMagnitude(CELL_SCALE);
     this.cellNode.left = SCREEN_VIEW_MARGIN + 10;
@@ -159,9 +160,12 @@ export class NernstScreenView extends ScreenView {
           maxWidth: LEFT_CONTENT_WIDTH - 110,
         },
         numberDisplayOptions: {
-          numberFormatter: (log: number) =>
-            StringUtils.fillIn(common.molarPatternStringProperty.value, { value: formatConcentration(10 ** log) }),
-          numberFormatterDependencies: [common.molarPatternStringProperty],
+          // The log Property pins at the end of the track; the readout keeps the beaker's concentration.
+          numberFormatter: () =>
+            StringUtils.fillIn(common.molarPatternStringProperty.value, {
+              value: formatConcentration(state.concentrationProperty.value),
+            }),
+          numberFormatterDependencies: [common.molarPatternStringProperty, state.concentrationProperty],
         },
         sliderOptions: {
           ...ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS.sliderOptions,
@@ -180,6 +184,17 @@ export class NernstScreenView extends ScreenView {
       model.rightLogConcentrationProperty,
       strings.rightStringProperty,
     );
+    const watchSlider = (control: NumberControl, side: "left" | "right") => {
+      const sync = () => {
+        model.concentrationSliderHeld[side] =
+          control.slider.thumbDragListener.isUserControlledProperty.value ||
+          control.slider.trackDragListener.isUserControlledProperty.value;
+      };
+      control.slider.thumbDragListener.isUserControlledProperty.link(sync);
+      control.slider.trackDragListener.isUserControlledProperty.link(sync);
+    };
+    watchSlider(leftControl, "left");
+    watchSlider(rightControl, "right");
     const temperatureControl = numberControl(
       strings.temperatureStringProperty,
       model.temperatureCelsiusProperty,

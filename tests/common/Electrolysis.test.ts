@@ -7,12 +7,15 @@
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import { describe, expect, it } from "vitest";
 import { ELECTROLYSIS_SYSTEM_LIST, ELECTROLYSIS_SYSTEMS } from "../../src/common/model/ElectrolysisSystems.js";
-import { ELECTRODE_MASS, GAS_TUBE_CAPACITY } from "../../src/ElectrochemistryConstants.js";
+import { ELECTRODE_MASS, FARADAY, GAS_TUBE_CAPACITY } from "../../src/ElectrochemistryConstants.js";
 import {
   current,
   ElectrolysisModel,
+  gasEquationAmounts,
   gasVolume,
   metalMassChange,
+  reportedElectrodeMass,
+  supplyAnnouncement,
 } from "../../src/electrolysis/model/ElectrolysisModel.js";
 
 describe("Faraday's law", () => {
@@ -28,6 +31,45 @@ describe("Faraday's law", () => {
     expect(h2 / o2).toBeCloseTo(2, 10);
     // 500 C → 0.005182 mol e⁻ → 0.002591 mol H₂ → 63.4 mL at 25 °C, 1 atm
     expect(h2).toBeCloseTo(63.39, 1);
+  });
+});
+
+describe("electrolysis readouts", () => {
+  it("states a gas volume in litres that match the millilitres", () => {
+    const volume = gasEquationAmounts(500 / (2 * FARADAY));
+    expect(volume.milliliters).toBeCloseTo(63.4, 5);
+    expect(volume.liters * 1000).toBe(volume.milliliters);
+    expect(volume.molarVolumeLiters).toBeCloseTo(24.47, 2);
+  });
+
+  it("reports plated metal on an inert electrode without the 10 g baseline", () => {
+    const silver = ELECTROLYSIS_SYSTEMS.silverPlating;
+    const spoon = reportedElectrodeMass(silver.cathodeProduct, silver.cathodeMaterial, ELECTRODE_MASS + 0.5);
+    expect(spoon.value).toBeCloseTo(0.5, 10);
+    expect(spoon.change).toBeCloseTo(0.5, 10);
+    const graphite = ELECTROLYSIS_SYSTEMS.copperChloride;
+    const plated = reportedElectrodeMass(graphite.cathodeProduct, graphite.cathodeMaterial, ELECTRODE_MASS + 1.2);
+    expect(plated.value).toBeCloseTo(1.2, 10);
+    expect(plated.change).toBeCloseTo(1.2, 10);
+  });
+
+  it("keeps the electrode's own mass for copper and a dissolving anode", () => {
+    const copper = ELECTROLYSIS_SYSTEMS.copperPlating;
+    const cathode = reportedElectrodeMass(copper.cathodeProduct, copper.cathodeMaterial, ELECTRODE_MASS + 1.185);
+    expect(cathode.value).toBeCloseTo(ELECTRODE_MASS + 1.185, 10);
+    expect(cathode.change).toBeCloseTo(1.185, 10);
+    const silver = ELECTROLYSIS_SYSTEMS.silverPlating;
+    const anode = reportedElectrodeMass(silver.anodeProduct, silver.anodeMaterial, 8.5);
+    expect(anode.value).toBeCloseTo(8.5, 10);
+    expect(anode.change).toBeCloseTo(8.5 - ELECTRODE_MASS, 10);
+  });
+
+  it("announces a finished run before a voltage that is below the minimum", () => {
+    expect(supplyAnnouncement({ on: false, current: 0, finished: false, anodeDissolves: false })).toBe("off");
+    expect(supplyAnnouncement({ on: true, current: 1.5, finished: false, anodeDissolves: false })).toBe("current");
+    expect(supplyAnnouncement({ on: true, current: 0, finished: false, anodeDissolves: false })).toBe("belowMinimum");
+    expect(supplyAnnouncement({ on: true, current: 0, finished: true, anodeDissolves: false })).toBe("tubeFull");
+    expect(supplyAnnouncement({ on: true, current: 0, finished: true, anodeDissolves: true })).toBe("anodeDissolved");
   });
 });
 

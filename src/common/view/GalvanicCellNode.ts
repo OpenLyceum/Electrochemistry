@@ -8,8 +8,9 @@
  *
  * With current flowing, electrons move through the wire from anode to cathode at a speed that
  * follows the current, K⁺ in the salt bridge drifts towards the cathode and NO₃⁻ towards the
- * anode, and the bulb glows. Clicking the switch or the salt bridge toggles them (the panels'
- * checkboxes do the same from the keyboard).
+ * anode, and the bulb glows. Clicking the switch toggles it, and clicking the salt bridge
+ * toggles it when `interactiveSaltBridge` is set (the Galvanic Cell panel's checkboxes do the
+ * same from the keyboard).
  */
 
 import { DerivedProperty, Multilink, type TReadOnlyProperty } from "scenerystack/axon";
@@ -51,6 +52,12 @@ export type GalvanicCellNodeOptions = {
   conventionalCurrentProperty: TReadOnlyProperty<boolean>;
   /** Name, role and concentration under each beaker. */
   showLabels: boolean;
+  /**
+   * Pointer toggle for the salt bridge. The Galvanic Cell screen pairs this with a checkbox.
+   * The Nernst screen turns it off: the bridge stays in, and its equation uses the cell
+   * potential rather than the open-circuit voltmeter reading.
+   */
+  interactiveSaltBridge?: boolean;
 };
 
 type BridgeIon = { node: Circle; distance: number; offset: number; cation: boolean };
@@ -72,6 +79,7 @@ export class GalvanicCellNode extends Node {
   public constructor(cell: ElectrochemicalCell, options: GalvanicCellNodeOptions) {
     super();
     this.cell = cell;
+    const interactiveSaltBridge = options.interactiveSaltBridge ?? true;
     const common = StringManager.getInstance().getCommonStrings();
 
     this.leftBeaker = new HalfCellBeakerNode(cell.left, LEFT_ELECTRODE_X, LEFT_BRIDGE_X, options.showIonsProperty);
@@ -106,7 +114,7 @@ export class GalvanicCellNode extends Node {
       });
     }
     const bridge = new Node({
-      cursor: "pointer",
+      cursor: interactiveSaltBridge ? "pointer" : null,
       children: [
         new Path(bridgeShape, { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 22, lineJoin: "round" }),
         new Path(bridgeShape, {
@@ -128,14 +136,16 @@ export class GalvanicCellNode extends Node {
       stroke: ElectrochemistryColors.glassColorProperty,
       lineWidth: 1.5,
       lineDash: [5, 4],
-      cursor: "pointer",
+      cursor: interactiveSaltBridge ? "pointer" : null,
       visibleProperty: DerivedProperty.not(cell.saltBridgeProperty),
     });
-    // The ghost is thin; give it the full bridge as its touch area.
-    bridgeGhost.touchArea = bridgeShape.getStrokedShape(new LineStyles({ lineWidth: 22 }));
-    bridgeGhost.mouseArea = bridgeGhost.touchArea;
-    for (const node of [bridge, bridgeGhost]) {
-      node.addInputListener(new PressListener({ press: () => cell.saltBridgeProperty.toggle() }));
+    if (interactiveSaltBridge) {
+      // The ghost is thin; give it the full bridge as its touch area.
+      bridgeGhost.touchArea = bridgeShape.getStrokedShape(new LineStyles({ lineWidth: 22 }));
+      bridgeGhost.mouseArea = bridgeGhost.touchArea;
+      for (const node of [bridge, bridgeGhost]) {
+        node.addInputListener(new PressListener({ press: () => cell.saltBridgeProperty.toggle() }));
+      }
     }
 
     // ── External circuit: wire, bulb and switch ─────────────────────────────────
