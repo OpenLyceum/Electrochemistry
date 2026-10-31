@@ -174,17 +174,18 @@ export class ElectrolysisScreenView extends ScreenView {
     const anodeText = readout();
     const cationText = readout();
     const statusText = readout(ElectrochemistryColors.poorColorProperty);
+    // A system with a dissolving anode collects no gas, so that is what finished its run.
     const statusProperty = new DerivedProperty(
       [
         model.finishedProperty,
-        model.anodeMassProperty,
+        model.systemProperty,
         model.powerOnProperty,
         model.voltageProperty,
         model.minimumVoltageProperty,
       ],
-      (finished, anodeMass, on, voltage, minimum) =>
+      (finished, system, on, voltage, minimum) =>
         finished
-          ? anodeMass <= 0
+          ? system.anodeProduct.kind === "metal" && system.anodeProduct.dissolves
             ? "anodeDissolved"
             : "tubeFull"
           : on && voltage <= minimum
@@ -330,7 +331,7 @@ export class ElectrolysisScreenView extends ScreenView {
     );
 
     const timeControl = createTimeControl(model.timer.isPlayingProperty, model.timeSpeedProperty, () =>
-      model.advance(1),
+      model.stepFrame(1 / 60),
     );
     const middleColumn = new VBox({
       align: "center",

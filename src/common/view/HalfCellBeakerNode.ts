@@ -47,6 +47,10 @@ export class HalfCellBeakerNode extends Node {
   private readonly bubbleLayer = new Node();
   private readonly particles: Particle[] = [];
   private electrodeHalfWidth = ELECTRODE_WIDTH / 2;
+  /** A metal electrode, resized as its mass changes; null for the hydrogen electrode. */
+  private plate: Rectangle | null = null;
+  /** The clip and wire end left hanging once a metal electrode has dissolved. */
+  private stub: Line | null = null;
 
   /**
    * @param state - the half-cell drawn
@@ -96,7 +100,7 @@ export class HalfCellBeakerNode extends Node {
       this.rebuildElectrode();
       this.clearIons();
     });
-    state.massProperty.link(() => this.rebuildElectrode());
+    state.massProperty.link(() => this.resizeElectrode());
     this.syncIonCount();
   }
 
@@ -105,9 +109,12 @@ export class HalfCellBeakerNode extends Node {
     return new Vector2(this.electrodeX, ELECTRODE_TOP);
   }
 
+  /** Draws the electrode for a new half-cell. */
   private rebuildElectrode(): void {
     disposeChildren(this.electrodeLayer);
     disposeChildren(this.bubbleLayer);
+    this.plate = null;
+    this.stub = null;
     const halfCell = this.state.halfCellProperty.value;
     const x = this.electrodeX;
     if (isGasElectrode(halfCell)) {
@@ -151,25 +158,42 @@ export class HalfCellBeakerNode extends Node {
         );
       }
     } else {
-      const width = ELECTRODE_WIDTH * Math.sqrt(Math.max(0, this.state.massProperty.value) / ELECTRODE_MASS);
-      this.electrodeHalfWidth = width / 2;
-      if (width > 0.5) {
-        this.electrodeLayer.addChild(
-          new Rectangle(x - width / 2, ELECTRODE_TOP, width, ELECTRODE_BOTTOM - ELECTRODE_TOP, 2, 2, {
-            fill: electrodeColor(halfCell),
-            stroke: ElectrochemistryColors.panelBorderColorProperty,
-          }),
-        );
-      } else {
-        // Dissolved: the clip and wire end are left hanging.
-        this.electrodeLayer.addChild(
-          new Line(x, ELECTRODE_TOP, x, ELECTRODE_TOP + 20, {
-            stroke: ElectrochemistryColors.wireColorProperty,
-            lineWidth: 2,
-          }),
-        );
-      }
+      this.plate = new Rectangle(
+        x - ELECTRODE_WIDTH / 2,
+        ELECTRODE_TOP,
+        ELECTRODE_WIDTH,
+        ELECTRODE_BOTTOM - ELECTRODE_TOP,
+        2,
+        2,
+        {
+          fill: electrodeColor(halfCell),
+          stroke: ElectrochemistryColors.panelBorderColorProperty,
+        },
+      );
+      this.stub = new Line(x, ELECTRODE_TOP, x, ELECTRODE_TOP + 20, {
+        stroke: ElectrochemistryColors.wireColorProperty,
+        lineWidth: 2,
+      });
+      this.electrodeLayer.children = [this.plate, this.stub];
+      this.resizeElectrode();
     }
+  }
+
+  /** A metal electrode's width follows its mass; once it has dissolved only the stub is left. */
+  private resizeElectrode(): void {
+    if (!(this.plate && this.stub)) {
+      return;
+    }
+    const width = ELECTRODE_WIDTH * Math.sqrt(Math.max(0, this.state.massProperty.value) / ELECTRODE_MASS);
+    this.electrodeHalfWidth = width / 2;
+    this.plate.visible = width > 0.5;
+    this.plate.setRect(
+      this.electrodeX - width / 2,
+      ELECTRODE_TOP,
+      Math.max(width, 0.5),
+      ELECTRODE_BOTTOM - ELECTRODE_TOP,
+    );
+    this.stub.visible = !this.plate.visible;
   }
 
   private clearIons(): void {

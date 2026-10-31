@@ -4,9 +4,10 @@
  * Faraday's-law amounts and the decomposition voltage.
  */
 
+import { TimeSpeed } from "scenerystack/scenery-phet";
 import { describe, expect, it } from "vitest";
-import { ELECTROLYSIS_SYSTEMS } from "../../src/common/model/ElectrolysisSystems.js";
-import { ELECTRODE_MASS } from "../../src/ElectrochemistryConstants.js";
+import { ELECTROLYSIS_SYSTEM_LIST, ELECTROLYSIS_SYSTEMS } from "../../src/common/model/ElectrolysisSystems.js";
+import { ELECTRODE_MASS, GAS_TUBE_CAPACITY } from "../../src/ElectrochemistryConstants.js";
 import {
   current,
   ElectrolysisModel,
@@ -56,6 +57,40 @@ describe("ElectrolysisModel", () => {
     expect(model.cathodeGasVolumeProperty.value).toBeCloseTo(50, 6);
     expect(model.anodeGasVolumeProperty.value).toBeCloseTo(25, 6);
     expect(model.currentProperty.value).toBe(0);
+  });
+
+  it.each(ELECTROLYSIS_SYSTEM_LIST.map((system) => [system.id, system] as const))(
+    "runs %s to the end and stops there",
+    (_id, system) => {
+      const model = new ElectrolysisModel();
+      model.systemProperty.value = system;
+      model.voltageProperty.value = 3;
+      model.powerOnProperty.value = true;
+      model.timeSpeedProperty.value = TimeSpeed.FAST;
+      for (let frame = 0; frame < 10000 && !model.finishedProperty.value; frame++) {
+        model.stepFrame(1 / 60);
+      }
+      expect(model.finishedProperty.value).toBe(true);
+      expect(model.currentProperty.value).toBe(0);
+      const dissolves = system.anodeProduct.kind === "metal" && system.anodeProduct.dissolves;
+      if (dissolves) {
+        expect(model.anodeMassProperty.value).toBeCloseTo(0, 9);
+      } else {
+        const fullest = Math.max(model.cathodeGasVolumeProperty.value, model.anodeGasVolumeProperty.value);
+        expect(fullest).toBeCloseTo(GAS_TUBE_CAPACITY, 9);
+      }
+      // Finished means no more time passes.
+      const elapsed = model.elapsedTimeProperty.value;
+      model.stepFrame(1 / 60);
+      expect(model.elapsedTimeProperty.value).toBe(elapsed);
+    },
+  );
+
+  it("steps one frame at the chosen speed", () => {
+    const model = new ElectrolysisModel();
+    model.powerOnProperty.value = true;
+    model.stepFrame(1 / 60);
+    expect(model.elapsedTimeProperty.value).toBeCloseTo(1, 9);
   });
 
   it("uses up Cu²⁺ in CuCl₂ and raises the decomposition voltage", () => {

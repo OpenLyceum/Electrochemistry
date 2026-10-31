@@ -9,7 +9,8 @@
  * where the mass-transport term applies only when the cathode's cation is used up (CuCl₂), and
  * E_min shifts with its concentration by the Nernst equation. Charge accumulates as ∫I dt, and
  * every product follows Faraday's law, n = Q / (zF). Gases are collected over each electrode at
- * 25 °C and 1 atm until a tube is full; the run then stops.
+ * 25 °C and 1 atm until a tube is full; the run then stops. A dissolving anode stops the run the
+ * same way when it is used up. Both limits are a charge, so the run ends exactly on it.
  */
 
 import {
@@ -65,6 +66,19 @@ export function metalMassChange(product: ElectrodeProduct, charge: number): numb
   return product.dissolves ? -mass : mass;
 }
 
+/** Charge (C) at which the run stops: a gas tube is full or a dissolving anode is used up. */
+export function chargeToFinish(system: ElectrolysisSystem): number {
+  let limit = Number.POSITIVE_INFINITY;
+  for (const product of [system.cathodeProduct, system.anodeProduct]) {
+    if (product.kind === "gas") {
+      limit = Math.min(limit, (GAS_TUBE_CAPACITY / MOLAR_GAS_VOLUME) * product.electrons * FARADAY);
+    } else if (product.dissolves) {
+      limit = Math.min(limit, (ELECTRODE_MASS / product.molarMass) * product.electrons * FARADAY);
+    }
+  }
+  return limit;
+}
+
 export class ElectrolysisModel implements TModel {
   public readonly systemProperty = new Property<ElectrolysisSystem>(ELECTROLYSIS_SYSTEMS.copperPlating);
   public readonly voltageProperty = new NumberProperty(DEFAULT_SUPPLY_VOLTAGE, {
@@ -117,10 +131,11 @@ export class ElectrolysisModel implements TModel {
     this.anodeGasVolumeProperty = new DerivedProperty([this.systemProperty, this.chargeProperty], (system, charge) =>
       gasVolume(system.anodeProduct, charge),
     );
+    // Compared as charge, not as mass or volume: advance() lands exactly on this charge, whereas
+    // 10 g − Q·M/(nF) can round to 1.8 × 10⁻¹⁵ g and never reach zero.
     this.finishedProperty = new DerivedProperty(
-      [this.cathodeGasVolumeProperty, this.anodeGasVolumeProperty, this.anodeMassProperty],
-      (cathodeGas, anodeGas, anodeMass) =>
-        cathodeGas >= GAS_TUBE_CAPACITY || anodeGas >= GAS_TUBE_CAPACITY || anodeMass <= 0,
+      [this.systemProperty, this.chargeProperty],
+      (system, charge) => charge >= chargeToFinish(system),
     );
     this.currentProperty = new DerivedProperty(
       [
@@ -156,8 +171,13 @@ export class ElectrolysisModel implements TModel {
   /** Advances by one frame of `dt` real seconds when playing. */
   public step(dt: number): void {
     if (this.timer.isPlayingProperty.value) {
-      this.advance(dt * timeScaleFor(this.timeSpeedProperty.value, ELECTROLYSIS_TIME_SCALE));
+      this.stepFrame(dt);
     }
+  }
+
+  /** Advances by `dt` real seconds at the chosen speed, playing or not (step button). */
+  public stepFrame(dt: number): void {
+    this.advance(dt * timeScaleFor(this.timeSpeedProperty.value, ELECTROLYSIS_TIME_SCALE));
   }
 
   /** Advances by `dt` simulated seconds whether or not the clock is playing (step button, tests). */
@@ -166,6 +186,7 @@ export class ElectrolysisModel implements TModel {
       return;
     }
     const system = this.systemProperty.value;
+    const finalCharge = chargeToFinish(system);
     let remaining = dt;
     for (let i = 0; i < MAX_SUBSTEPS && remaining > 0 && !this.finishedProperty.value; i++) {
       const i0 = this.currentProperty.value;
@@ -179,9 +200,11 @@ export class ElectrolysisModel implements TModel {
         const rate = i0 / (system.cathodeProduct.electrons * FARADAY);
         h = Math.min(h, (MAX_FRACTION_PER_SUBSTEP * moles) / rate);
       }
-      // Stop exactly when a gas tube fills, so the readings end on the tube's capacity.
-      h = Math.min(h, this.timeToFill(system, i0));
-      const charge = i0 * h;
+      // Stop exactly when a gas tube fills or the anode is gone, so the readings end on the limit.
+      const timeToFinish = (finalCharge - this.chargeProperty.value) / i0;
+      const finishing = timeToFinish <= h;
+      h = Math.min(h, timeToFinish);
+      const charge = finishing ? finalCharge - this.chargeProperty.value : i0 * h;
       if (system.consumesCation) {
         const used = charge / (system.cathodeProduct.electrons * FARADAY);
         this.cationConcentrationProperty.value = Math.max(
@@ -189,25 +212,10 @@ export class ElectrolysisModel implements TModel {
           this.cationConcentrationProperty.value - used / ELECTROLYSIS_VOLUME,
         );
       }
-      this.chargeProperty.value += charge;
+      this.chargeProperty.value = finishing ? finalCharge : this.chargeProperty.value + charge;
       this.elapsedTimeProperty.value += h;
       remaining -= h;
     }
-  }
-
-  /** Time (s) at current `i0` until a gas tube is full or a dissolving anode is used up. */
-  private timeToFill(system: ElectrolysisSystem, i0: number): number {
-    let limit = Number.POSITIVE_INFINITY;
-    for (const product of [system.cathodeProduct, system.anodeProduct]) {
-      if (product.kind === "gas") {
-        const chargeToFill = (GAS_TUBE_CAPACITY / MOLAR_GAS_VOLUME) * product.electrons * FARADAY;
-        limit = Math.min(limit, (chargeToFill - this.chargeProperty.value) / i0);
-      } else if (product.dissolves) {
-        const chargeToDissolve = (ELECTRODE_MASS / product.molarMass) * product.electrons * FARADAY;
-        limit = Math.min(limit, (chargeToDissolve - this.chargeProperty.value) / i0);
-      }
-    }
-    return Math.max(limit, 0);
   }
 }
 

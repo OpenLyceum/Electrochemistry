@@ -75,7 +75,7 @@ export function fromLog(log10: number, significant = 3): string {
   return `${fixed(mantissa, significant - 1)} × 10${superscript(exponent)}`;
 }
 
-/** A concentration in M with three significant figures (scientific below 0.001 M). */
+/** A concentration in M: three significant figures (two below 0.001 M), scientific below 0.01 M. */
 export function formatConcentration(concentration: number): string {
   return concentration >= 0.001 ? fromLog(Math.log10(concentration), 3) : fromLog(Math.log10(concentration), 2);
 }

@@ -64,6 +64,20 @@ describe("ElectrochemicalCell", () => {
     expect(Math.abs(cell.potentialProperty.value)).toBeLessThan(1e-4);
   });
 
+  it("dissolves no more metal than a Pb anode holds, then stops", () => {
+    const cell = new ElectrochemicalCell({ leftHalfCell: HALF_CELLS.pb, rightHalfCell: HALF_CELLS.cu });
+    cell.circuitClosedProperty.value = true;
+    for (let i = 0; i < 2000; i++) {
+      cell.step(600);
+    }
+    const leadMoles = ELECTRODE_MASS / (HALF_CELLS.pb.metalMolarMass as number);
+    expect(cell.anodeGoneProperty.value).toBe(true);
+    expect(cell.left.massProperty.value).toBe(0);
+    expect(cell.left.moles - HALF_CELL_VOLUME).toBeCloseTo(leadMoles, 12);
+    expect(cell.chargeProperty.value / (2 * FARADAY)).toBeCloseTo(leadMoles, 12);
+    expect(cell.currentProperty.value).toBe(0);
+  });
+
   it("refreshes a beaker when its half-cell changes", () => {
     const cell = new ElectrochemicalCell();
     cell.circuitClosedProperty.value = true;

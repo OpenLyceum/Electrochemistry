@@ -30,8 +30,17 @@ overall form (n = lcm, Q) is what the Nernst screen displays. A test checks they
 Rather than a fancy solver, `ElectrochemicalCell.step` takes substeps that change neither ion
 amount by more than 2 %, up to 400 per frame; any time left over is dropped rather than integrated
 coarsely. Concentrations never go below 10⁻¹⁵ M, so logarithms stay finite. Once the current is
-below 1 µA, the rest of the frame's time passes with no current. Electrolysis uses the same
-substep limit for CuCl₂. It also cuts the last substep so a gas tube ends exactly at 50 mL.
+below 1 µA, the rest of the frame's time passes with no current. A substep also ends when a metal
+anode is used up, and its mass is then set to exactly 0, so the cell never dissolves metal it does
+not have. Electrolysis uses the same substep limit for CuCl₂. Its run ends at a charge (a full gas
+tube or a dissolved anode, `chargeToFinish`): the last substep lands exactly on that charge, and
+`finishedProperty` compares charges, because 10 g − Q·M/(nF) can round to 10⁻¹⁵ g instead of 0.
+
+**Drawing electrodes.** Electrode masses change every substep, so the beakers and the electrolysis
+apparatus resize their electrode and plating nodes (`setRect`, opacity) rather than rebuilding
+them; nodes are only rebuilt when the half-cell or electrolysis system changes. The electrolysis
+gas columns and bubble groups live for the whole sim and are taken out of their layer before a
+rebuild disposes the rest.
 
 **Log-scale sliders.** `NernstModel` keeps a log₁₀ concentration Property per side, synced both
 ways with the cell's concentration. When the running cell pushes a concentration outside

@@ -17,7 +17,8 @@
  * so the current dies away as the cathode's ion is used up. Each substep moves charge I·dt: the
  * cathode's ion is reduced (its metal plates out) and the anode's metal dissolves into ions.
  * Substeps are limited so that neither ion amount changes by more than a few percent, which keeps
- * concentrations positive without a stiff solver.
+ * concentrations positive without a stiff solver, and so that a metal anode dissolves no more
+ * metal than it has: the substep that uses it up ends exactly at zero mass.
  */
 
 import { BooleanProperty, DerivedProperty, NumberProperty, Property, type TReadOnlyProperty } from "scenerystack/axon";
@@ -233,14 +234,24 @@ export class ElectrochemicalCell {
       const electronRate = Math.abs(current) / FARADAY;
       const anodeIonRate = (electronRate * anodeHalf.ionCoefficient) / anodeHalf.electrons;
       const cathodeIonRate = (electronRate * cathodeHalf.ionCoefficient) / cathodeHalf.electrons;
+      // Time until a metal anode is used up (the platinum hydrogen electrode never is).
+      const timeToDissolve =
+        anodeHalf.metalMolarMass === null
+          ? Number.POSITIVE_INFINITY
+          : anode.massProperty.value / anodeHalf.metalMolarMass / (electronRate / anodeHalf.electrons);
       const h = Math.min(
         remaining,
         (MAX_FRACTION_PER_SUBSTEP * cathode.moles) / cathodeIonRate,
         (MAX_FRACTION_PER_SUBSTEP * Math.max(anode.moles, 1e-6)) / anodeIonRate,
+        timeToDissolve,
       );
 
       const electrons = electronRate * h;
       anode.react(anodeIonRate * h, -electrons / anodeHalf.electrons);
+      if (h === timeToDissolve) {
+        // Land on zero exactly; rounding could otherwise leave a sliver that never counts as gone.
+        anode.massProperty.value = 0;
+      }
       cathode.react(-cathodeIonRate * h, electrons / cathodeHalf.electrons);
       this.chargeProperty.value += electrons * FARADAY;
       this.elapsedTimeProperty.value += h;

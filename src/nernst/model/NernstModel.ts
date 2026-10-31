@@ -78,26 +78,37 @@ export class NernstModel implements TModel {
     });
   }
 
-  /** Copper concentration cell: 0.010 M on the anode side, 1.0 M on the cathode side. */
+  /** Copper concentration cell, freshly built: 0.010 M on the anode side, 1.0 M on the cathode side. */
   public concentrationCell(): void {
     this.cell.left.halfCellProperty.value = HALF_CELLS.cu;
     this.cell.right.halfCellProperty.value = HALF_CELLS.cu;
+    // A beaker that was already copper keeps its half-cell, so refresh its electrode here too.
+    this.cell.left.refresh();
+    this.cell.right.refresh();
     this.cell.left.concentrationProperty.value = 0.01;
     this.cell.right.concentrationProperty.value = 1;
     this.cell.restartRun();
   }
 
-  /** Swaps the two half-cells (and their concentrations), reversing the reaction as written. */
+  /**
+   * Swaps the two beakers, each with its solution and electrode, reversing the reaction as
+   * written.
+   */
   public swap(): void {
     const left = this.cell.left;
     const right = this.cell.right;
     const leftHalfCell = left.halfCellProperty.value;
     const leftConcentration = left.concentrationProperty.value;
     const rightConcentration = right.concentrationProperty.value;
+    const leftMass = left.massProperty.value;
+    const rightMass = right.massProperty.value;
+    // Changing a half-cell refreshes its beaker, so the state is restored after both are set.
     left.halfCellProperty.value = right.halfCellProperty.value;
     right.halfCellProperty.value = leftHalfCell;
     left.concentrationProperty.value = rightConcentration;
     right.concentrationProperty.value = leftConcentration;
+    left.massProperty.value = rightMass;
+    right.massProperty.value = leftMass;
     this.cell.restartRun();
   }
 

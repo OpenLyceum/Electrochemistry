@@ -107,8 +107,10 @@ open PRs that fight the overrides. Revisit when SceneryStack drops or re-pins th
 | Path | Purpose |
 |---|---|
 | `tests/common/Nernst.test.ts` | Daniell 1.104 V, n = lcm, 0.0592/n slope, mixed-n and hydrogen-electrode Q, concentration cell, ΔG° = −213 kJ, log K = 37.3 |
-| `tests/common/ElectrochemicalCell.test.ts` | Voltmeter sign and salt bridge, no current until the bulb is in, electron bookkeeping, Daniell run-down, concentration cell to E = 0, half-cell change refreshes |
-| `tests/common/Electrolysis.test.ts` | 2.00 A × 30 min → 1.19 g Cu, H₂ : O₂ = 2 : 1 and 63.4 mL per 500 C, E_min threshold, tube full stops the run, CuCl₂ depletion |
+| `tests/common/ElectrochemicalCell.test.ts` | Voltmeter sign and salt bridge, no current until the bulb is in, electron bookkeeping, Daniell run-down, concentration cell to E = 0, a Pb anode dissolves exactly its own metal, half-cell change refreshes |
+| `tests/common/Electrolysis.test.ts` | 2.00 A × 30 min → 1.19 g Cu, H₂ : O₂ = 2 : 1 and 63.4 mL per 500 C, E_min threshold, tube full stops the run, every system runs to its end and stops, one step = one frame, CuCl₂ depletion |
+| `tests/nernst/NernstModel.test.ts` | Swap moves whole beakers (solution and electrode); the concentration cell starts with fresh electrodes |
+| `tests/electrolysis/ElectrolysisCellNode.test.ts` | Switching systems back and forth disposes nothing twice (assertions on) |
 | `tests/TimeModel.test.ts` | Template `TimeModel` |
 | `tests/memory-leak.test.ts`, `tests/helpers/`, `tests/fuzz/` | Template-owned harness; the leak suite covers `ElectronFlowNode`, wires and ion particles |
 

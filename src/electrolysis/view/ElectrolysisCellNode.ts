@@ -58,11 +58,19 @@ const ELECTRON_SPEED = 90;
 const BUBBLE_SPEED = 70;
 const BUBBLES_PER_TUBE = 8;
 
+/**
+ * One electrode's drawing. `gas` and `bubbles` are kept for the life of the node and moved in and
+ * out of `layer`; `plate` and `coat` are made for each system and resized as the charge passes.
+ */
 type ElectrodeView = {
   readonly x: number;
   readonly layer: Node;
   readonly bubbles: Node;
   readonly gas: Rectangle;
+  /** The metal electrode, thinning as it dissolves; null for a gas electrode or the spoon. */
+  plate: Rectangle | null;
+  /** Metal plated onto the electrode (or the spoon); null when nothing plates there. */
+  coat: Rectangle | Path | null;
 };
 
 export class ElectrolysisCellNode extends Node {
@@ -133,6 +141,8 @@ export class ElectrolysisCellNode extends Node {
       layer: new Node(),
       bubbles: new Node({ pickable: false }),
       gas: new Rectangle(0, 0, 1, 1, { fill: ElectrochemistryColors.bubbleColorProperty, opacity: 0.55 }),
+      plate: null,
+      coat: null,
     });
     this.cathodeView = electrodeView(CATHODE_X);
     this.anodeView = electrodeView(ANODE_X);
@@ -189,8 +199,6 @@ export class ElectrolysisCellNode extends Node {
 
     this.children = [
       solution,
-      this.cathodeView.bubbles,
-      this.anodeView.bubbles,
       this.cathodeView.layer,
       this.anodeView.layer,
       beaker,
@@ -216,8 +224,16 @@ export class ElectrolysisCellNode extends Node {
   /** Redraws electrodes, tubes and wires for a new system. */
   private rebuild(system: ElectrolysisSystem): void {
     for (const view of [this.cathodeView, this.anodeView]) {
+      // The gas column and bubble group outlive the system: take them out before disposing the rest.
+      for (const kept of [view.gas, view.bubbles]) {
+        if (view.layer.hasChild(kept)) {
+          view.layer.removeChild(kept);
+        }
+      }
       disposeChildren(view.layer);
       disposeChildren(view.bubbles);
+      view.plate = null;
+      view.coat = null;
     }
     disposeChildren(this.wireLayer);
 
@@ -325,13 +341,44 @@ export class ElectrolysisCellNode extends Node {
       // Bubbles live in the tube, above the electrolyte layer.
       view.layer.addChild(view.bubbles);
     } else if (spoon) {
+      // Silver coats the spoon below the liquid line; its opacity follows the silver deposited.
+      view.coat = new Path(
+        new Shape()
+          .rect(x - 4, LIQUID_TOP, 8, ELECTRODE_TOP + 170 - LIQUID_TOP)
+          .ellipse(x, ELECTRODE_TOP + 196, 17, 30, 0),
+        { fill: ElectrochemistryColors.silverColorProperty, opacity: 0 },
+      );
       view.layer.children = [
         new Rectangle(x - 4, ELECTRODE_TOP, 8, 170, 3, 3, { fill: materialColor(material) }),
         new Path(Shape.ellipse(x, ELECTRODE_TOP + 196, 17, 30, 0), { fill: materialColor(material) }),
-        new Node(),
+        view.coat,
       ];
     } else {
-      view.layer.children = [new Node(), new Node()];
+      view.plate = new Rectangle(
+        x - PLATE_WIDTH / 2,
+        ELECTRODE_TOP,
+        PLATE_WIDTH,
+        ELECTRODE_BOTTOM - ELECTRODE_TOP,
+        2,
+        2,
+        {
+          fill: materialColor(material),
+          stroke: ElectrochemistryColors.panelBorderColorProperty,
+        },
+      );
+      view.layer.children = [view.plate];
+      if (product.kind === "metal" && !product.dissolves) {
+        // Plated metal: a coat on the immersed part, thicker as more is deposited.
+        view.coat = new Rectangle(0, 0, 10, 10, 2, 2, {
+          fill:
+            product.formula === "Ag"
+              ? ElectrochemistryColors.silverColorProperty
+              : ElectrochemistryColors.copperColorProperty,
+          opacity: 0.95,
+          visible: false,
+        });
+        view.layer.addChild(view.coat);
+      }
     }
   }
 
@@ -361,53 +408,26 @@ export class ElectrolysisCellNode extends Node {
         view.gas.visible = height > 0.5;
         continue;
       }
-      const isSpoon = material === "steel";
-      const coat = view.layer.children[view.layer.children.length - 1] as Node;
       const gained = Math.max(0, mass - ELECTRODE_MASS);
-      if (isSpoon) {
-        // Silver coats the spoon below the liquid line; its opacity follows the silver deposited.
-        disposeChildren(coat);
-        coat.addChild(
-          new Path(
-            new Shape()
-              .rect(x - 4, LIQUID_TOP, 8, ELECTRODE_TOP + 170 - LIQUID_TOP)
-              .ellipse(x, ELECTRODE_TOP + 196, 17, 30, 0),
-            { fill: ElectrochemistryColors.silverColorProperty, opacity: Math.min(1, gained / 0.3) },
-          ),
-        );
+      if (material === "steel") {
+        if (view.coat) {
+          view.coat.opacity = Math.min(1, gained / 0.3);
+        }
         continue;
       }
-      const base = view.layer.children[0] as Node;
-      disposeChildren(base);
-      disposeChildren(coat);
-      const width = product.dissolves ? PLATE_WIDTH * Math.sqrt(Math.max(0, mass) / ELECTRODE_MASS) : PLATE_WIDTH;
-      if (width > 0.5) {
-        base.addChild(
-          new Rectangle(x - width / 2, ELECTRODE_TOP, width, ELECTRODE_BOTTOM - ELECTRODE_TOP, 2, 2, {
-            fill: materialColor(material),
-            stroke: ElectrochemistryColors.panelBorderColorProperty,
-          }),
-        );
+      if (view.plate) {
+        const width = product.dissolves ? PLATE_WIDTH * Math.sqrt(Math.max(0, mass) / ELECTRODE_MASS) : PLATE_WIDTH;
+        view.plate.visible = width > 0.5;
+        view.plate.setRect(x - width / 2, ELECTRODE_TOP, Math.max(width, 0.5), ELECTRODE_BOTTOM - ELECTRODE_TOP);
       }
-      if (!product.dissolves && gained > 0) {
-        // Plated metal: a coat on the immersed part, thicker as more is deposited.
+      if (view.coat instanceof Rectangle) {
         const thickness = Math.min(8, 1 + 5 * Math.sqrt(gained));
-        coat.addChild(
-          new Rectangle(
-            x - PLATE_WIDTH / 2 - thickness,
-            LIQUID_TOP,
-            PLATE_WIDTH + 2 * thickness,
-            ELECTRODE_BOTTOM - LIQUID_TOP + thickness,
-            2,
-            2,
-            {
-              fill:
-                product.formula === "Ag"
-                  ? ElectrochemistryColors.silverColorProperty
-                  : ElectrochemistryColors.copperColorProperty,
-              opacity: 0.95,
-            },
-          ),
+        view.coat.visible = gained > 0;
+        view.coat.setRect(
+          x - PLATE_WIDTH / 2 - thickness,
+          LIQUID_TOP,
+          PLATE_WIDTH + 2 * thickness,
+          ELECTRODE_BOTTOM - LIQUID_TOP + thickness,
         );
       }
     }
