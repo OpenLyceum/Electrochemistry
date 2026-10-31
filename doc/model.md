@@ -47,6 +47,10 @@ Worked values the tests check: Daniell E° = 0.3419 − (−0.7618) = 1.104 V; �
 log K = 37.3; [Cu²⁺] = 0.010 M with [Zn²⁺] = 1 M gives E = 1.104 − 0.0296 × 2 = 1.045 V; a copper
 concentration cell 0.010 M | 1.0 M gives 0.0592 V.
 
+The hydrogen concentration-cell reaction is written as 2H⁺(aq, right) → 2H⁺(aq, left),
+consistent with n = 2 and Q = [H⁺]left²/[H⁺]right². At 0.010 M | 1.0 M and 25 °C,
+E = 0.1183 V and ΔG = −22.8 kJ per mole of that two-proton transfer.
+
 ### Sign conventions on screen
 
 - The voltmeter's black (COM) lead is on the left electrode and its red lead on the right, so it

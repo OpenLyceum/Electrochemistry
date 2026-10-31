@@ -30,6 +30,9 @@ decisions: [`doc/implementation-notes.md`](doc/implementation-notes.md).
   the R_MT term a Daniell cell would keep 0.9 A flowing with no Cu²⁺ left. With it, the current
   dies away and E stays high (K ≈ 10³⁷ is out of reach), which is the correct open-circuit
   behaviour. A concentration cell runs all the way to E = 0.
+- **Current follows conditions immediately.** `currentProperty` is read-only and derived from
+  the potential, concentrations, circuit, salt bridge and anode availability. Paused edits
+  change current without passing charge or advancing the clock.
 - **Potentials are CRC values** (the ones OpenStax reproduces): Cu²⁺/Cu is +0.3419 V, so the
   Daniell cell is 1.104 V. Changing a value means changing a test.
 - **Ideal behaviour.** Activities equal molarities; E° does not depend on temperature;
@@ -65,10 +68,12 @@ decisions: [`doc/implementation-notes.md`](doc/implementation-notes.md).
   flow), the salt bridge, the current dying and a dissolved anode are announced. The live summary
   gives both half-cells, the voltmeter reading, the anode and cathode, and the current.
 - Nernst: concentrations and temperature are sliders whose value text is the concentration in M.
+  Concentration thumbs stay within 10⁻⁴…2 M, but numeric and accessible readouts show the true
+  beaker concentration even outside that range. A deliberate slider edit selects an in-range value.
   Swapping, the concentration cell and reaching equilibrium are announced. The live summary
   gives Q, log Q, E°, E and the verdict.
 - Electrolysis: the power checkbox announces the current (or that the voltage is below the
-  minimum); a full tube and a dissolved anode are announced. The live summary gives the supply,
+  minimum); after completion it announces the full tube or dissolved anode instead. The live summary gives the supply,
   current, charge, time and the products.
 
 ## Compliance carve-outs
@@ -107,11 +112,12 @@ open PRs that fight the overrides. Revisit when SceneryStack drops or re-pins th
 | Path | Purpose |
 |---|---|
 | `tests/common/Nernst.test.ts` | Daniell 1.104 V, n = lcm, 0.0592/n slope, mixed-n and hydrogen-electrode Q, concentration cell, ΔG° = −213 kJ, log K = 37.3 |
-| `tests/common/ElectrochemicalCell.test.ts` | Voltmeter sign and salt bridge, no current until the bulb is in, electron bookkeeping, Daniell run-down, concentration cell to E = 0, a Pb anode dissolves exactly its own metal, half-cell change refreshes |
+| `tests/common/ElectrochemicalCell.test.ts` | Voltmeter sign and salt bridge, no current until the bulb is in, electron bookkeeping, Daniell run-down, concentration cell to E = 0, a Pb anode dissolves exactly its own metal, half-cell change refreshes, live current after paused condition/polarity edits and reset |
 | `tests/common/Electrolysis.test.ts` | 2.00 A × 30 min → 1.19 g Cu, H₂ : O₂ = 2 : 1 and 63.4 mL per 500 C, E_min threshold, tube full stops the run, every system runs to its end and stops, one step = one frame, CuCl₂ depletion |
 | `tests/nernst/NernstModel.test.ts` | Swap moves whole beakers (solution and electrode); the concentration cell starts with fresh electrodes |
 | `tests/electrolysis/ElectrolysisCellNode.test.ts` | Switching systems back and forth disposes nothing twice (assertions on) |
 | `tests/TimeModel.test.ts` | Template `TimeModel` |
+| `tests/browser/review-regressions.spec.ts` | Native paused edits, true out-of-range concentration readouts and subsequent keyboard edits, hydrogen reaction/n/Q/ΔG consistency in all locales, power-toggle completion announcements |
 | `tests/memory-leak.test.ts`, `tests/helpers/`, `tests/fuzz/` | Template-owned harness; the leak suite covers `ElectronFlowNode`, wires and ion particles |
 
 - Unit tests live only under root `tests/`, mirroring `src/`.

@@ -404,12 +404,17 @@ export class ElectrolysisScreenView extends ScreenView {
 
     model.powerOnProperty.lazyLink((on) => {
       const current = model.currentProperty.value;
+      const system = model.systemProperty.value;
       this.addAccessibleResponse(
         !on
           ? a11y.responses.powerOffStringProperty.value
-          : current > 0
-            ? StringUtils.fillIn(a11y.responses.powerOnPatternStringProperty.value, { value: formatCurrent(current) })
-            : a11y.responses.powerOnBelowMinimumStringProperty.value,
+          : model.finishedProperty.value
+            ? system.anodeProduct.kind === "metal" && system.anodeProduct.dissolves
+              ? a11y.responses.anodeDissolvedStringProperty.value
+              : a11y.responses.tubeFullStringProperty.value
+            : current > 0
+              ? StringUtils.fillIn(a11y.responses.powerOnPatternStringProperty.value, { value: formatCurrent(current) })
+              : a11y.responses.powerOnBelowMinimumStringProperty.value,
       );
     });
 

@@ -87,4 +87,49 @@ describe("ElectrochemicalCell", () => {
     expect(cell.right.massProperty.value).toBe(ELECTRODE_MASS);
     expect(cell.chargeProperty.value).toBe(0);
   });
+
+  it("updates current after a concentration edit without passing time or charge", () => {
+    const cell = new ElectrochemicalCell();
+    cell.circuitClosedProperty.value = true;
+    cell.right.concentrationProperty.value = 1e-4;
+    // E = 1.1037 + RT/(2F) ln(10^-4); R_total = 1 + 0.2/(10^-4) ohms.
+    expect(cell.currentProperty.value).toBeCloseTo(0.0004924444281002284, 12);
+    expect(cell.chargeProperty.value).toBe(0);
+    expect(cell.elapsedTimeProperty.value).toBe(0);
+    expect(cell.left.massProperty.value).toBe(ELECTRODE_MASS);
+    expect(cell.right.massProperty.value).toBe(ELECTRODE_MASS);
+  });
+
+  it("updates current direction and temperature dependence without a simulation step", () => {
+    const cell = new ElectrochemicalCell({ leftHalfCell: HALF_CELLS.cu, rightHalfCell: HALF_CELLS.cu });
+    cell.left.concentrationProperty.value = 0.01;
+    cell.circuitClosedProperty.value = true;
+    expect(cell.currentProperty.value).toBeGreaterThan(0);
+    cell.right.concentrationProperty.value = 0.001;
+    const roomTemperature = cell.currentProperty.value;
+    expect(roomTemperature).toBeLessThan(0);
+    cell.temperatureProperty.value = 373.15;
+    // E and therefore I scale with absolute temperature for a concentration cell.
+    expect(cell.currentProperty.value).toBeCloseTo((roomTemperature * 373.15) / 298.15, 12);
+    expect(cell.elapsedTimeProperty.value).toBe(0);
+    expect(cell.chargeProperty.value).toBe(0);
+    cell.right.massProperty.value = 0;
+    expect(cell.currentProperty.value).toBe(0);
+  });
+
+  it("keeps edited open circuits at zero current and resets all current dependencies", () => {
+    const cell = new ElectrochemicalCell();
+    cell.right.concentrationProperty.value = 0.01;
+    cell.temperatureProperty.value = 350;
+    expect(cell.currentProperty.value).toBe(0);
+    cell.circuitClosedProperty.value = true;
+    expect(cell.currentProperty.value).toBeGreaterThan(0);
+    cell.saltBridgeProperty.value = false;
+    cell.left.concentrationProperty.value = 0.1;
+    expect(cell.currentProperty.value).toBe(0);
+    cell.reset();
+    expect(cell.currentProperty.value).toBe(0);
+    cell.circuitClosedProperty.value = true;
+    expect(cell.currentProperty.value).toBeCloseTo(0.91975, 10);
+  });
 });
