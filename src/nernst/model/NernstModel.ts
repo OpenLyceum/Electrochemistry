@@ -30,26 +30,54 @@ export const LOG_CONCENTRATION_RANGE = new Range(
   Math.log10(CONCENTRATION_RANGE.max),
 );
 
-/** A log₁₀ concentration Property kept in step with a half-cell's concentration, both ways. */
-function logConcentrationProperty(state: HalfCellState): NumberProperty {
+/** Which concentration slider, if either, a pointer is currently dragging. */
+export type ConcentrationSliderHeld = { left: boolean; right: boolean };
+
+/**
+ * A log₁₀ concentration Property kept in step with a half-cell's concentration, both ways.
+ * Outside the slider's range the Property pins at the end (so the thumb stays on the track)
+ * while the beaker keeps the true concentration. A key or arrow step then moves that true
+ * value. A pointer drag sets whatever concentration the track is pointing at.
+ */
+function logConcentrationProperty(
+  state: HalfCellState,
+  side: keyof ConcentrationSliderHeld,
+  held: ConcentrationSliderHeld,
+): NumberProperty {
+  // Reentrant: an off-track step sets the concentration from this Property's own listener, and
+  // the concentration's listener pins this Property again before that notification has finished.
   const property = new NumberProperty(Math.log10(state.concentrationProperty.value), {
     range: LOG_CONCENTRATION_RANGE,
+    reentrant: true,
   });
-  let updating = false;
-  property.lazyLink((log) => {
-    if (!updating) {
-      updating = true;
+  // Property notifications are queued, so a guard flag cleared at the end of a listener does not
+  // cover the write-back. Count the notifications this function itself causes and skip them.
+  let ignoredPropertyChanges = 0;
+  const pinLog = (log: number) => {
+    const pinned = LOG_CONCENTRATION_RANGE.constrainValue(log);
+    if (!property.areValuesEqual(property.value, pinned)) {
+      ignoredPropertyChanges++;
+      property.value = pinned;
+    }
+  };
+  property.lazyLink((log, previous) => {
+    if (ignoredPropertyChanges > 0) {
+      ignoredPropertyChanges--;
+      return;
+    }
+    const trueLog = Math.log10(state.concentrationProperty.value);
+    const onTrack = trueLog >= LOG_CONCENTRATION_RANGE.min && trueLog <= LOG_CONCENTRATION_RANGE.max;
+    if (onTrack || held[side]) {
       state.concentrationProperty.value = 10 ** log;
-      updating = false;
+    } else {
+      const stepped = 10 ** (trueLog + (log - previous));
+      state.concentrationProperty.value = stepped;
+      pinLog(Math.log10(stepped));
     }
   });
-  // When the cell runs, a concentration can leave the slider's range; the slider then pins at its end.
+  // When the cell runs, a concentration can leave the slider's range; the thumb then pins at its end.
   state.concentrationProperty.lazyLink((concentration) => {
-    if (!updating) {
-      updating = true;
-      property.value = LOG_CONCENTRATION_RANGE.constrainValue(Math.log10(concentration));
-      updating = false;
-    }
+    pinLog(Math.log10(concentration));
   });
   return property;
 }
@@ -60,8 +88,22 @@ export class NernstModel implements TModel {
     rightHalfCell: HALF_CELLS.cu,
     initialConcentration: 1,
   });
-  public readonly leftLogConcentrationProperty = logConcentrationProperty(this.cell.left);
-  public readonly rightLogConcentrationProperty = logConcentrationProperty(this.cell.right);
+  /**
+   * True while a pointer is dragging that side's thumb or track. The view sets these.
+   * Arrow keys and the +/- buttons leave them false, so those steps follow the true
+   * concentration once the cell has run past the track.
+   */
+  public readonly concentrationSliderHeld: ConcentrationSliderHeld = { left: false, right: false };
+  public readonly leftLogConcentrationProperty = logConcentrationProperty(
+    this.cell.left,
+    "left",
+    this.concentrationSliderHeld,
+  );
+  public readonly rightLogConcentrationProperty = logConcentrationProperty(
+    this.cell.right,
+    "right",
+    this.concentrationSliderHeld,
+  );
   public readonly temperatureCelsiusProperty = new NumberProperty(STANDARD_TEMPERATURE - CELSIUS_OFFSET, {
     range: new Range(TEMPERATURE_RANGE.min - CELSIUS_OFFSET, TEMPERATURE_RANGE.max - CELSIUS_OFFSET),
     units: "°C",

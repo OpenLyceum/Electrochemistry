@@ -19,6 +19,7 @@ import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/ElectrochemistryButt
 import { ElectrochemistryPanel } from "../../common/ElectrochemistryPanel.js";
 import {
   ELECTROLYSIS_SYSTEM_LIST,
+  type ElectrodeMaterial,
   type ElectrodeProduct,
   type ElectrolysisSystem,
   productMoles,
@@ -44,7 +45,6 @@ import {
 } from "../../common/view/formatValues.js";
 import ElectrochemistryColors from "../../ElectrochemistryColors.js";
 import {
-  ELECTRODE_MASS,
   FARADAY,
   FONT_SIZE,
   PANEL_SPACING,
@@ -52,7 +52,12 @@ import {
   SIDE_COLUMN_WIDTH,
 } from "../../ElectrochemistryConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import { type ElectrolysisModel, MOLAR_GAS_VOLUME } from "../model/ElectrolysisModel.js";
+import {
+  type ElectrolysisModel,
+  gasEquationAmounts,
+  reportedElectrodeMass,
+  supplyAnnouncement,
+} from "../model/ElectrolysisModel.js";
 import { ElectrolysisCellNode } from "./ElectrolysisCellNode.js";
 import { ElectrolysisScreenSummaryContent } from "./ElectrolysisScreenSummaryContent.js";
 
@@ -79,6 +84,7 @@ export function productReadout(
   mass: number,
   gasVolume: number,
   plain: boolean,
+  material: ElectrodeMaterial,
 ): string {
   const strings = StringManager.getInstance().getElectrolysisStrings();
   if (product.kind === "gas") {
@@ -87,9 +93,10 @@ export function productReadout(
       value: fixed(gasVolume, 1),
     });
   }
+  const reported = reportedElectrodeMass(product, material, mass);
   return StringUtils.fillIn(
     (isCathode ? strings.cathodeMassPatternStringProperty : strings.anodeMassPatternStringProperty).value,
-    { value: formatMass(mass), change: signed(mass - ELECTRODE_MASS, 3) },
+    { value: formatMass(reported.value), change: signed(reported.change, 3) },
   );
 }
 
@@ -231,6 +238,7 @@ export class ElectrolysisScreenView extends ScreenView {
           model.cathodeMassProperty.value,
           model.cathodeGasVolumeProperty.value,
           false,
+          system.cathodeMaterial,
         );
         anodeText.string = productReadout(
           system.anodeProduct,
@@ -238,6 +246,7 @@ export class ElectrolysisScreenView extends ScreenView {
           model.anodeMassProperty.value,
           model.anodeGasVolumeProperty.value,
           false,
+          system.anodeMaterial,
         );
         cationText.visible = system.consumesCation;
         cationText.string = StringUtils.fillIn(strings.cationPatternStringProperty.value, {
@@ -403,19 +412,26 @@ export class ElectrolysisScreenView extends ScreenView {
     });
 
     model.powerOnProperty.lazyLink((on) => {
-      const current = model.currentProperty.value;
       const system = model.systemProperty.value;
-      this.addAccessibleResponse(
-        !on
+      const kind = supplyAnnouncement({
+        on,
+        current: model.currentProperty.value,
+        finished: model.finishedProperty.value,
+        anodeDissolves: system.anodeProduct.kind === "metal" && system.anodeProduct.dissolves,
+      });
+      const text =
+        kind === "off"
           ? a11y.responses.powerOffStringProperty.value
-          : model.finishedProperty.value
-            ? system.anodeProduct.kind === "metal" && system.anodeProduct.dissolves
-              ? a11y.responses.anodeDissolvedStringProperty.value
-              : a11y.responses.tubeFullStringProperty.value
-            : current > 0
-              ? StringUtils.fillIn(a11y.responses.powerOnPatternStringProperty.value, { value: formatCurrent(current) })
-              : a11y.responses.powerOnBelowMinimumStringProperty.value,
-      );
+          : kind === "current"
+            ? StringUtils.fillIn(a11y.responses.powerOnPatternStringProperty.value, {
+                value: formatCurrent(model.currentProperty.value),
+              })
+            : kind === "tubeFull"
+              ? a11y.responses.tubeFullStringProperty.value
+              : kind === "anodeDissolved"
+                ? a11y.responses.anodeDissolvedStringProperty.value
+                : a11y.responses.powerOnBelowMinimumStringProperty.value;
+      this.addAccessibleResponse(text);
     });
 
     const resetAllButton = new ResetAllButton({
@@ -486,12 +502,14 @@ function calculationLines(product: ElectrodeProduct, electrode: string, charge: 
       }),
     );
   } else {
+    const volume = gasEquationAmounts(amount);
     lines.push(
       StringUtils.fillIn(strings.productVolumePatternStringProperty.value, {
         formula,
         moles: moles(amount),
-        molarVolume: fixed(MOLAR_GAS_VOLUME / 1000, 2),
-        value: fixed(amount * MOLAR_GAS_VOLUME, 1),
+        molarVolume: fixed(volume.molarVolumeLiters, 2),
+        liters: fixed(volume.liters, 4),
+        value: fixed(volume.milliliters, 1),
       }),
     );
   }

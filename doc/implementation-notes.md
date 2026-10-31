@@ -46,9 +46,9 @@ rebuild disposes the rest.
 
 **Log-scale sliders.** `NernstModel` keeps a log₁₀ concentration Property per side, synced both
 ways with the cell's concentration. When the running cell pushes a concentration outside
-10⁻⁴…2 M, the slider pins at its end while the model keeps the true value. Numeric and accessible
-readouts observe the beaker's actual concentration independently of the bounded thumb. A slider
-edit deliberately selects a value inside the editable range.
+10⁻⁴…2 M, the thumb pins at the end of the track while the number readout and the slider's
+screen-reader value keep the true concentration. Arrow and keyboard steps then move that true value. Dragging the thumb or
+clicking the track sets a concentration on the scale.
 
 **Self-fitting chart.** `NernstChartNode` refits its axes only when the content leaves the range
 or fills less than a third of it, so the axes hold still while a slider moves. log K is put on

@@ -87,19 +87,21 @@ for (const { side, index, values, labels, key } of [
       expect(await strings(page)).toContain(labels[i]);
       await expect.poll(async () => (await slider.getAttribute("aria-valuetext"))?.trim()).toBe(labels[i]);
     }
-    // A deliberate keyboard edit chooses a value on the editable scale; it must stay in sync.
+    // An arrow key steps from the beaker's true concentration (about a tenth of a decade), not
+    // from the pinned thumb, so the value stays off the track and the readout stays in sync.
     await page.keyboard.press(key);
     const edited = await page.evaluate((which) => {
       const model = (window as unknown as SimulationWindow<NernstModel>).phet.joist.sim.selectedScreenProperty.value
         .model;
       return { concentration: model.cell[which].concentrationProperty.value, charge: model.cell.chargeProperty.value };
     }, side);
-    expect(edited.concentration).toBeGreaterThanOrEqual(1e-4);
-    expect(edited.concentration).toBeLessThanOrEqual(2);
+    const last = values[values.length - 1] as number;
+    const ratio = edited.concentration / last;
+    expect(side === "left" ? 1 / ratio : ratio).toBeCloseTo(10 ** 0.1, 1);
     expect(edited.charge).toBe(0);
     await expect
       .poll(async () => (await slider.getAttribute("aria-valuetext"))?.trim())
-      .toBe(side === "left" ? "1.58 M" : "1.3 × 10⁻⁴ M");
+      .toBe(side === "left" ? "4.75 M" : "1.3 × 10⁻⁹ M");
   });
 }
 
