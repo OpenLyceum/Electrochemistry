@@ -63,11 +63,8 @@ import {
 import { StringManager } from "../../i18n/StringManager.js";
 import { LOG_CONCENTRATION_RANGE, type NernstModel } from "../model/NernstModel.js";
 import { NernstChartNode } from "./NernstChartNode.js";
-import { type NernstState, verdictOf } from "./NernstVerdict.js";
-
-export type { NernstState } from "./NernstVerdict.js";
-
 import { NernstScreenSummaryContent } from "./NernstScreenSummaryContent.js";
+import { type NernstState, verdictOf } from "./NernstVerdict.js";
 
 type SelfOptions = {
   /** Draw conventional current as well as electrons (Preferences). */
