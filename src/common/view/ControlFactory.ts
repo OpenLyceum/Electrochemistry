@@ -7,9 +7,9 @@
 
 import type { PhetioProperty, Property, TReadOnlyProperty } from "scenerystack/axon";
 import type { Range } from "scenerystack/dot";
-import { HBox, Node, RichText, Text, VBox } from "scenerystack/scenery";
+import { type Node, RichText, Text, VBox } from "scenerystack/scenery";
 import { NumberControl, PhetFont } from "scenerystack/scenery-phet";
-import { AquaRadioButtonGroup, Checkbox, ComboBox, type ComboBoxItem, TextPushButton } from "scenerystack/sun";
+import { Checkbox, ComboBox, type ComboBoxItem, TextPushButton } from "scenerystack/sun";
 import ElectrochemistryColors from "../../ElectrochemistryColors.js";
 import {
   ELECTROCHEMISTRY_COMBO_BOX_OPTIONS,
@@ -22,15 +22,14 @@ import {
 } from "../ElectrochemistryControlOptions.js";
 
 export const CONTROL_FONT = new PhetFont(13);
-export const SMALL_FONT = new PhetFont(12);
-export const HEADING_FONT = new PhetFont({ size: 14, weight: "bold" });
+const HEADING_FONT = new PhetFont({ size: 14, weight: "bold" });
 
 export function heading(text: TReadOnlyProperty<string>, maxWidth: number): Text {
   return new Text(text, { font: HEADING_FONT, fill: ElectrochemistryColors.textColorProperty, maxWidth });
 }
 
 /** A panel label; RichText so labels can carry markup such as Z<sub>eff</sub>. */
-export function label(text: TReadOnlyProperty<string> | string, maxWidth: number): RichText {
+function label(text: TReadOnlyProperty<string> | string, maxWidth: number): RichText {
   return new RichText(text, { font: CONTROL_FONT, fill: ElectrochemistryColors.textColorProperty, maxWidth });
 }
 
@@ -102,42 +101,6 @@ export function pushButton(
     listener,
     accessibleName,
   });
-}
-
-export function radioGroup<T>(
-  property: PhetioProperty<T>,
-  choices: readonly ComboChoice<T>[],
-  accessibleName: TReadOnlyProperty<string>,
-  maxWidth: number,
-  orientation: "vertical" | "horizontal" = "vertical",
-): AquaRadioButtonGroup<T> {
-  return new AquaRadioButtonGroup(
-    property,
-    choices.map((choice) => ({
-      value: choice.value,
-      createNode: () => label(choice.display ?? choice.label, maxWidth),
-      options: { accessibleName: choice.label },
-    })),
-    {
-      orientation,
-      spacing: orientation === "vertical" ? 4 : 10,
-      radioButtonOptions: { radius: 6, selectedColor: ElectrochemistryColors.accentColorProperty },
-      accessibleName,
-    },
-  );
-}
-
-/** Two checkboxes side by side (or one) for compact panels. */
-export function pairRow(left: Node, right: Node | null, columnWidth: number): HBox {
-  return new HBox({
-    spacing: 8,
-    align: "center",
-    children: right ? [sized(left, columnWidth), right] : [left],
-  });
-}
-
-function sized(node: Node, width: number): Node {
-  return new Node({ children: [node], localBounds: node.localBounds.withMaxX(Math.max(node.localBounds.maxX, width)) });
 }
 
 export type NumberControlChoice = {

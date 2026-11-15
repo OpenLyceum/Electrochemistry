@@ -25,9 +25,9 @@ import { electrodeColor, ionColor, solutionTint } from "./halfCellColors.js";
 export const BEAKER_WIDTH = 170;
 export const BEAKER_HEIGHT = 160;
 /** Liquid surface, below the beaker's rim. */
-export const LIQUID_TOP = 30;
+const LIQUID_TOP = 30;
 /** Top of the electrode (where wires attach), above the rim. */
-export const ELECTRODE_TOP = -40;
+const ELECTRODE_TOP = -40;
 const ELECTRODE_BOTTOM = 140;
 const ELECTRODE_WIDTH = 24;
 const IONS_PER_MOLAR = 10;

@@ -51,7 +51,7 @@ import {
 } from "../../ElectrochemistryConstants.js";
 
 /** Molar volume of an ideal gas at 25 °C and 1 atm (mL/mol): 24 465 mL. */
-export const MOLAR_GAS_VOLUME = ((GAS_CONSTANT * STANDARD_TEMPERATURE) / STANDARD_PRESSURE) * 1e6;
+const MOLAR_GAS_VOLUME = ((GAS_CONSTANT * STANDARD_TEMPERATURE) / STANDARD_PRESSURE) * 1e6;
 
 /**
  * Amounts for the Faraday gas-volume line. Litres are the millilitre reading divided by 1000,
@@ -124,7 +124,7 @@ export function metalMassChange(product: ElectrodeProduct, charge: number): numb
 }
 
 /** Charge (C) at which the run stops: a gas tube is full or a dissolving anode is used up. */
-export function chargeToFinish(system: ElectrolysisSystem): number {
+function chargeToFinish(system: ElectrolysisSystem): number {
   let limit = Number.POSITIVE_INFINITY;
   for (const product of [system.cathodeProduct, system.anodeProduct]) {
     if (product.kind === "gas") {
@@ -280,7 +280,7 @@ export class ElectrolysisModel implements TModel {
  * Decomposition voltage (V): the standard value, raised by the Nernst equation as the reduced
  * cation is used up (CuCl₂: Cu²⁺ + 2Cl⁻ → Cu + Cl₂, with [Cl⁻] = 2[Cu²⁺]).
  */
-export function minimumVoltage(system: ElectrolysisSystem, concentration: number): number {
+function minimumVoltage(system: ElectrolysisSystem, concentration: number): number {
   if (!system.consumesCation) {
     return system.minimumVoltage;
   }

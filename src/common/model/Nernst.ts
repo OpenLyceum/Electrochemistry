@@ -51,7 +51,7 @@ export function electronsTransferred(cathode: HalfCell, anode: HalfCell): number
  *
  * so Q = [Ox_a]^(ν_a n/n_a) / [Ox_c]^(ν_c n/n_c). Logarithms keep it finite for any inputs.
  */
-export function lnReactionQuotient(
+function lnReactionQuotient(
   cathode: HalfCell,
   cathodeConcentration: number,
   anode: HalfCell,

@@ -17,7 +17,7 @@
  * can be spoken and shown in plain Text.
  */
 
-export const HALF_CELL_IDS = ["mg", "al", "zn", "fe", "ni", "pb", "h2", "cu", "ag"] as const;
+const HALF_CELL_IDS = ["mg", "al", "zn", "fe", "ni", "pb", "h2", "cu", "ag"] as const;
 export type HalfCellId = (typeof HALF_CELL_IDS)[number];
 
 export type HalfCell = {

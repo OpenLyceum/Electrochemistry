@@ -16,7 +16,7 @@
 
 import { FARADAY } from "../../ElectrochemistryConstants.js";
 
-export const ELECTROLYSIS_SYSTEM_IDS = ["copperPlating", "silverPlating", "copperChloride", "water"] as const;
+const ELECTROLYSIS_SYSTEM_IDS = ["copperPlating", "silverPlating", "copperChloride", "water"] as const;
 export type ElectrolysisSystemId = (typeof ELECTROLYSIS_SYSTEM_IDS)[number];
 
 export type ElectrodeMaterial = "copper" | "silver" | "steel" | "graphite" | "platinum";

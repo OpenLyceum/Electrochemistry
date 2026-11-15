@@ -24,7 +24,7 @@ import { FONT_SIZE } from "../../ElectrochemistryConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 
 /** A "nice" tick spacing (1, 2, 2.5 or 5 × 10ⁿ) giving about `count` intervals over `span`. */
-export function niceStep(span: number, count: number): number {
+function niceStep(span: number, count: number): number {
   const raw = span / count;
   const magnitude = 10 ** Math.floor(Math.log10(raw));
   const nice = [1, 2, 2.5, 5, 10].find((m) => m * magnitude >= raw) ?? 10;

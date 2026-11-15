@@ -88,7 +88,7 @@ export type NernstState = NernstChartData & {
   readonly electrons: number;
 };
 
-export function nernstStateProperty(model: NernstModel): TReadOnlyProperty<NernstState> {
+function nernstStateProperty(model: NernstModel): TReadOnlyProperty<NernstState> {
   const cell = model.cell;
   return new DerivedProperty(
     [
