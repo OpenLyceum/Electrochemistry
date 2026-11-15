@@ -12,7 +12,7 @@ import { ScreenSummaryContent } from "scenerystack/sim";
 import { fixed, formatCurrent, formatMinutes, systemNameProperty } from "../../common/view/formatValues.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { ElectrolysisModel } from "../model/ElectrolysisModel.js";
-import { productReadout } from "./ElectrolysisScreenView.js";
+import { productReadout } from "./ElectrolysisReadouts.js";
 
 export class ElectrolysisScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: ElectrolysisModel) {

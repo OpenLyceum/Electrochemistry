@@ -19,7 +19,6 @@ import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/ElectrochemistryButt
 import { ElectrochemistryPanel } from "../../common/ElectrochemistryPanel.js";
 import {
   ELECTROLYSIS_SYSTEM_LIST,
-  type ElectrodeMaterial,
   type ElectrodeProduct,
   type ElectrolysisSystem,
   productMoles,
@@ -40,7 +39,6 @@ import {
   formatMass,
   formatMinutes,
   fromLog,
-  signed,
   systemNameProperty,
 } from "../../common/view/formatValues.js";
 import ElectrochemistryColors from "../../ElectrochemistryColors.js";
@@ -52,13 +50,9 @@ import {
   SIDE_COLUMN_WIDTH,
 } from "../../ElectrochemistryConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import {
-  type ElectrolysisModel,
-  gasEquationAmounts,
-  reportedElectrodeMass,
-  supplyAnnouncement,
-} from "../model/ElectrolysisModel.js";
+import { type ElectrolysisModel, gasEquationAmounts, supplyAnnouncement } from "../model/ElectrolysisModel.js";
 import { ElectrolysisCellNode } from "./ElectrolysisCellNode.js";
+import { productReadout } from "./ElectrolysisReadouts.js";
 import { ElectrolysisScreenSummaryContent } from "./ElectrolysisScreenSummaryContent.js";
 
 type SelfOptions = {
@@ -76,29 +70,6 @@ const MIDDLE_LEFT = 496;
 const MIDDLE_WIDTH = 256;
 const MIDDLE_CONTENT_WIDTH = MIDDLE_WIDTH - 24;
 const SIDE_CONTENT_WIDTH = SIDE_COLUMN_WIDTH - 24;
-
-/** Plain-text measurement of one electrode's product, for readouts and descriptions. */
-export function productReadout(
-  product: ElectrodeProduct,
-  isCathode: boolean,
-  mass: number,
-  gasVolume: number,
-  plain: boolean,
-  material: ElectrodeMaterial,
-): string {
-  const strings = StringManager.getInstance().getElectrolysisStrings();
-  if (product.kind === "gas") {
-    return StringUtils.fillIn(strings.gasVolumePatternStringProperty.value, {
-      gas: plain ? product.formulaPlain : product.formula,
-      value: fixed(gasVolume, 1),
-    });
-  }
-  const reported = reportedElectrodeMass(product, material, mass);
-  return StringUtils.fillIn(
-    (isCathode ? strings.cathodeMassPatternStringProperty : strings.anodeMassPatternStringProperty).value,
-    { value: formatMass(reported.value), change: signed(reported.change, 3) },
-  );
-}
 
 export class ElectrolysisScreenView extends ScreenView {
   private readonly apparatus: ElectrolysisCellNode;

@@ -62,7 +62,11 @@ import {
 } from "../../ElectrochemistryConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import { LOG_CONCENTRATION_RANGE, type NernstModel } from "../model/NernstModel.js";
-import { type NernstChartData, NernstChartNode } from "./NernstChartNode.js";
+import { NernstChartNode } from "./NernstChartNode.js";
+import { type NernstState, verdictOf } from "./NernstVerdict.js";
+
+export type { NernstState } from "./NernstVerdict.js";
+
 import { NernstScreenSummaryContent } from "./NernstScreenSummaryContent.js";
 
 type SelfOptions = {
@@ -82,11 +86,6 @@ const CHART_HEIGHT = 196;
 const EQUATION_LEFT = 350;
 const EQUATION_WIDTH = 404;
 const SIDE_CONTENT_WIDTH = SIDE_COLUMN_WIDTH - 24;
-
-/** Everything the chart, equation and description show, for the reaction as written. */
-export type NernstState = NernstChartData & {
-  readonly electrons: number;
-};
 
 function nernstStateProperty(model: NernstModel): TReadOnlyProperty<NernstState> {
   const cell = model.cell;
@@ -461,9 +460,4 @@ export class NernstScreenView extends ScreenView {
   public override step(dt: number): void {
     this.cellNode.step(dt);
   }
-}
-
-/** Direction of the reaction as written; |E| below 0.1 mV counts as equilibrium. */
-export function verdictOf(potential: number): "spontaneous" | "nonSpontaneous" | "equilibrium" {
-  return potential > 1e-4 ? "spontaneous" : potential < -1e-4 ? "nonSpontaneous" : "equilibrium";
 }

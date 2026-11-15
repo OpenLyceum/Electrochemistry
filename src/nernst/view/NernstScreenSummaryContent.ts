@@ -12,7 +12,7 @@ import { ScreenSummaryContent } from "scenerystack/sim";
 import { fixed, formatPotential, fromLog } from "../../common/view/formatValues.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { NernstModel } from "../model/NernstModel.js";
-import { type NernstState, verdictOf } from "./NernstScreenView.js";
+import { type NernstState, verdictOf } from "./NernstVerdict.js";
 
 export class NernstScreenSummaryContent extends ScreenSummaryContent {
   public constructor(_model: NernstModel, stateProperty: TReadOnlyProperty<NernstState>) {
