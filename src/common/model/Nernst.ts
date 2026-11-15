@@ -74,7 +74,10 @@ export function logReactionQuotient(
   return lnReactionQuotient(cathode, cathodeConcentration, anode, anodeConcentration) / Math.LN10;
 }
 
-/** Cell potential E = E_cathode − E_anode (V); negative when the reaction as written is not spontaneous. */
+/**
+ * Cell potential E = E_cathode − E_anode (V); negative when the reaction as written is not spontaneous.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function cellPotential(
   cathode: HalfCell,
   cathodeConcentration: number,

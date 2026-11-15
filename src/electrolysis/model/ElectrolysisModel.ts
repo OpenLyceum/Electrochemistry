@@ -109,12 +109,18 @@ export function supplyAnnouncement(state: {
   return state.current > 0 ? "current" : "belowMinimum";
 }
 
-/** Gas volume (mL) of a gaseous product after `charge` C; 0 for a metal. */
+/**
+ * Gas volume (mL) of a gaseous product after `charge` C; 0 for a metal.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function gasVolume(product: ElectrodeProduct, charge: number): number {
   return product.kind === "gas" ? productMoles(product, charge) * MOLAR_GAS_VOLUME : 0;
 }
 
-/** Signed mass change (g) of an electrode whose product is a metal after `charge` C; 0 for a gas. */
+/**
+ * Signed mass change (g) of an electrode whose product is a metal after `charge` C; 0 for a gas.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function metalMassChange(product: ElectrodeProduct, charge: number): number {
   if (product.kind !== "metal") {
     return 0;
@@ -290,7 +296,10 @@ function minimumVoltage(system: ElectrolysisSystem, concentration: number): numb
   );
 }
 
-/** Current (A) at supply voltage `voltage`. */
+/**
+ * Current (A) at supply voltage `voltage`.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function current(system: ElectrolysisSystem, voltage: number, concentration: number): number {
   const drive = voltage - minimumVoltage(system, concentration);
   if (drive <= 0) {
