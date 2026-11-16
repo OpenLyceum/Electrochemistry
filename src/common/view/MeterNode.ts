@@ -1,3 +1,4 @@
+import { METER_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * MeterNode.ts
  *
@@ -36,47 +37,68 @@ export class MeterNode extends Node {
       children: options.lines.map(
         (line) =>
           new Text(line, {
-            font: new PhetFont({ size: 17, family: "monospace", weight: "bold" }),
+            font: new PhetFont({ size: METER_NODE_SETTINGS.READOUTS_FONT_SIZE, family: "monospace", weight: "bold" }),
             fill: ElectrochemistryColors.meterTextColorProperty,
-            maxWidth: width - 28,
+            maxWidth: width - METER_NODE_SETTINGS.READOUTS_MAX_WIDTH_OFFSET,
           }),
       ),
     });
     const screenHeight = readouts.height + 8;
-    const screen = new Rectangle(0, 0, width - 16, screenHeight, 3, 3, {
-      fill: ElectrochemistryColors.meterScreenColorProperty,
-      x: 8,
-      y: 8,
-    });
+    const screen = new Rectangle(
+      0,
+      0,
+      width - 16,
+      screenHeight,
+      METER_NODE_SETTINGS.SCREEN_CORNER_X,
+      METER_NODE_SETTINGS.SCREEN_CORNER_Y,
+      {
+        fill: ElectrochemistryColors.meterScreenColorProperty,
+        x: METER_NODE_SETTINGS.SCREEN_X,
+        y: METER_NODE_SETTINGS.SCREEN_Y,
+      },
+    );
     // Readouts change width as their text changes; keep them right-aligned on the display.
     readouts.boundsProperty.link(() => {
-      readouts.right = screen.right - 6;
+      readouts.right = screen.right - METER_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
       readouts.centerY = screen.centerY;
     });
     const caption = options.caption
       ? new RichText(options.caption, {
-          font: new PhetFont(11),
+          font: new PhetFont(METER_NODE_SETTINGS.CAPTION_FONT_SIZE),
           fill: ElectrochemistryColors.controlSurfaceColorProperty,
-          maxWidth: width * 0.56 - 16,
+          maxWidth: width * METER_NODE_SETTINGS.CAPTION_MAX_WIDTH_FACTOR - METER_NODE_SETTINGS.CAPTION_MAX_WIDTH_OFFSET,
         })
       : null;
     const bodyHeight = screen.bottom + 30;
-    const body = new Rectangle(0, 0, width, bodyHeight, 8, 8, {
-      fill: ElectrochemistryColors.meterBodyColorProperty,
-      stroke: ElectrochemistryColors.panelBorderColorProperty,
-    });
+    const body = new Rectangle(
+      0,
+      0,
+      width,
+      bodyHeight,
+      METER_NODE_SETTINGS.BODY_CORNER_X,
+      METER_NODE_SETTINGS.BODY_CORNER_Y,
+      {
+        fill: ElectrochemistryColors.meterBodyColorProperty,
+        stroke: ElectrochemistryColors.panelBorderColorProperty,
+      },
+    );
     this.blackTerminal = new Vector2(width * 0.22, bodyHeight - 9);
     this.redTerminal = new Vector2(width * 0.78, bodyHeight - 9);
     const terminal = (
       center: Vector2,
       fill: TReadOnlyProperty<never> | typeof ElectrochemistryColors.redLeadColorProperty,
-    ) => new Circle(5, { fill, stroke: ElectrochemistryColors.panelBorderColorProperty, center });
+    ) =>
+      new Circle(METER_NODE_SETTINGS.TERMINAL_RADIUS, {
+        fill,
+        stroke: ElectrochemistryColors.panelBorderColorProperty,
+        center,
+      });
     const terminalLabel = (text: string | undefined, center: Vector2) =>
       new Text(text ?? "", {
-        font: new PhetFont(9),
+        font: new PhetFont(METER_NODE_SETTINGS.TERMINAL_LABEL_FONT_SIZE),
         fill: ElectrochemistryColors.controlSurfaceColorProperty,
         centerX: center.x,
-        bottom: center.y - 6,
+        bottom: center.y - METER_NODE_SETTINGS.TERMINAL_LABEL_BOTTOM_OFFSET,
       });
     const children: Node[] = [
       body,

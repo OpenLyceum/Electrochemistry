@@ -1,3 +1,4 @@
+import { NERNST_SCREEN_VIEW_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * NernstScreenView.ts
  *
@@ -73,15 +74,15 @@ type SelfOptions = {
 
 export type NernstScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-const CELL_SCALE = 0.6;
-const LEFT_COLUMN_WIDTH = 318;
+const CELL_SCALE: number = NERNST_SCREEN_VIEW_SETTINGS.CELL_SCALE;
+const LEFT_COLUMN_WIDTH: number = NERNST_SCREEN_VIEW_SETTINGS.LEFT_COLUMN_WIDTH;
 const LEFT_CONTENT_WIDTH = LEFT_COLUMN_WIDTH - 24;
-const CHART_LEFT = 398;
-const CHART_TOP = 44;
-const CHART_WIDTH = 344;
-const CHART_HEIGHT = 196;
-const EQUATION_LEFT = 350;
-const EQUATION_WIDTH = 404;
+const CHART_LEFT: number = NERNST_SCREEN_VIEW_SETTINGS.CHART_LEFT;
+const CHART_TOP: number = NERNST_SCREEN_VIEW_SETTINGS.CHART_TOP;
+const CHART_WIDTH: number = NERNST_SCREEN_VIEW_SETTINGS.CHART_WIDTH;
+const CHART_HEIGHT: number = NERNST_SCREEN_VIEW_SETTINGS.CHART_HEIGHT;
+const EQUATION_LEFT: number = NERNST_SCREEN_VIEW_SETTINGS.EQUATION_LEFT;
+const EQUATION_WIDTH: number = NERNST_SCREEN_VIEW_SETTINGS.EQUATION_WIDTH;
 const SIDE_CONTENT_WIDTH = SIDE_COLUMN_WIDTH - 24;
 
 function nernstStateProperty(model: NernstModel): TReadOnlyProperty<NernstState> {
@@ -135,7 +136,7 @@ export class NernstScreenView extends ScreenView {
       interactiveSaltBridge: false,
     });
     this.cellNode.setScaleMagnitude(CELL_SCALE);
-    this.cellNode.left = SCREEN_VIEW_MARGIN + 10;
+    this.cellNode.left = SCREEN_VIEW_MARGIN + NERNST_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
     this.cellNode.top = SCREEN_VIEW_MARGIN;
 
     const concentrationControl = (
@@ -149,11 +150,11 @@ export class NernstScreenView extends ScreenView {
       );
       return new NumberControl(titleProperty, logProperty, LOG_CONCENTRATION_RANGE, {
         ...ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS,
-        delta: 0.05,
+        delta: NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_DELTA,
         titleNodeOptions: {
           font: CONTROL_FONT,
           fill: ElectrochemistryColors.textColorProperty,
-          maxWidth: LEFT_CONTENT_WIDTH - 110,
+          maxWidth: LEFT_CONTENT_WIDTH - NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_MAX_WIDTH_OFFSET,
         },
         numberDisplayOptions: {
           // The log Property pins at the end of the track; the readout keeps the beaker's concentration.
@@ -165,9 +166,12 @@ export class NernstScreenView extends ScreenView {
         },
         sliderOptions: {
           ...ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS.sliderOptions,
-          trackSize: new Dimension2(180, 3),
-          keyboardStep: 0.1,
-          shiftKeyboardStep: 0.01,
+          trackSize: new Dimension2(
+            NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_WIDTH,
+            NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_HEIGHT,
+          ),
+          keyboardStep: NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_KEYBOARD_STEP,
+          shiftKeyboardStep: NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_SHIFT_KEYBOARD_STEP,
           pageKeyboardStep: 1,
           constrainValue: (value: number) => Math.round(value / 0.01) * 0.01,
           pdomCreateAriaValueText: () =>
@@ -206,7 +210,7 @@ export class NernstScreenView extends ScreenView {
     const conditionsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 10,
+        spacing: NERNST_SCREEN_VIEW_SETTINGS.CONDITIONS_PANEL_SPACING,
         children: [
           heading(strings.concentrationsHeadingStringProperty, LEFT_CONTENT_WIDTH),
           leftControl,
@@ -217,7 +221,7 @@ export class NernstScreenView extends ScreenView {
       { minWidth: LEFT_COLUMN_WIDTH, maxWidth: LEFT_COLUMN_WIDTH },
     );
     conditionsPanel.left = SCREEN_VIEW_MARGIN;
-    conditionsPanel.top = this.cellNode.bottom + 12;
+    conditionsPanel.top = this.cellNode.bottom + NERNST_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     // ── Chart ───────────────────────────────────────────────────────────────────
     const chart = new NernstChartNode(stateProperty, CHART_WIDTH, CHART_HEIGHT);
@@ -226,7 +230,11 @@ export class NernstScreenView extends ScreenView {
 
     // ── Equation ────────────────────────────────────────────────────────────────
     const line = (fill = ElectrochemistryColors.textColorProperty) =>
-      new RichText("", { font: new PhetFont(FONT_SIZE.control), fill, maxWidth: EQUATION_WIDTH - 24 });
+      new RichText("", {
+        font: new PhetFont(FONT_SIZE.control),
+        fill,
+        maxWidth: EQUATION_WIDTH - NERNST_SCREEN_VIEW_SETTINGS.LINE_MAX_WIDTH_OFFSET,
+      });
     const reactionLine = line();
     const electronsLine = line();
     const standardLine = line();
@@ -269,8 +277,8 @@ export class NernstScreenView extends ScreenView {
           value: state.electrons,
         });
         standardLine.string = StringUtils.fillIn(common.standardPotentialPatternStringProperty.value, {
-          cathode: signed(cathode.standardPotential, 3),
-          anode: signed(anode.standardPotential, 3),
+          cathode: signed(cathode.standardPotential, NERNST_SCREEN_VIEW_SETTINGS.STANDARD_POTENTIAL_SIGNED_DECIMALS),
+          anode: signed(anode.standardPotential, NERNST_SCREEN_VIEW_SETTINGS.STANDARD_POTENTIAL_SIGNED_DECIMALS),
           value: formatPotential(state.standardPotential),
         });
         quotientLine.string = StringUtils.fillIn(strings.quotientPatternStringProperty.value, {
@@ -285,8 +293,8 @@ export class NernstScreenView extends ScreenView {
         generalLine.string = strings.nernstGeneralStringProperty.value;
         nernstLine.string = StringUtils.fillIn(strings.nernstPatternStringProperty.value, {
           standard: formatPotential(state.standardPotential),
-          slope: fixed(state.slope, 4),
-          logQ: fixed(state.logQ, 2),
+          slope: fixed(state.slope, NERNST_SCREEN_VIEW_SETTINGS.SLOPE_FIXED_DECIMALS),
+          logQ: fixed(state.logQ, NERNST_SCREEN_VIEW_SETTINGS.NERNST_LINE_DECIMALS),
           value: formatPotential(state.potential),
         });
         gibbsLine.string = StringUtils.fillIn(strings.gibbsPatternStringProperty.value, {
@@ -312,7 +320,7 @@ export class NernstScreenView extends ScreenView {
     const equationPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 4,
+        spacing: NERNST_SCREEN_VIEW_SETTINGS.EQUATION_PANEL_SPACING,
         children: [
           reactionLine,
           electronsLine,
@@ -356,7 +364,7 @@ export class NernstScreenView extends ScreenView {
     const halfCellsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 8,
+        spacing: NERNST_SCREEN_VIEW_SETTINGS.HALF_CELLS_PANEL_SPACING,
         children: [
           labeled(common.leftHalfCellStringProperty, leftMenu, SIDE_CONTENT_WIDTH),
           labeled(common.rightHalfCellStringProperty, rightMenu, SIDE_CONTENT_WIDTH),
@@ -394,7 +402,11 @@ export class NernstScreenView extends ScreenView {
       },
     );
     const circuitPanel = new ElectrochemistryPanel(
-      new VBox({ align: "left", spacing: 8, children: [bulbCheckbox, readout, equationCheckbox] }),
+      new VBox({
+        align: "left",
+        spacing: NERNST_SCREEN_VIEW_SETTINGS.CIRCUIT_PANEL_SPACING,
+        children: [bulbCheckbox, readout, equationCheckbox],
+      }),
       { minWidth: SIDE_COLUMN_WIDTH, maxWidth: SIDE_COLUMN_WIDTH },
     );
     const timeControl = createTimeControl(model.timer.isPlayingProperty, model.timeSpeedProperty, () =>
@@ -402,7 +414,7 @@ export class NernstScreenView extends ScreenView {
     );
     const sideColumn = new VBox({
       align: "center",
-      spacing: PANEL_SPACING + 4,
+      spacing: PANEL_SPACING + NERNST_SCREEN_VIEW_SETTINGS.SIDE_COLUMN_SPACING_OFFSET,
       children: [halfCellsPanel, circuitPanel, timeControl],
       right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
       top: SCREEN_VIEW_MARGIN,

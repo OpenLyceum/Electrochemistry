@@ -1,3 +1,4 @@
+import { ELECTROCHEMISTRY_PANEL_SETTINGS } from "../ElectrochemistryConstants.js";
 /**
  * ElectrochemistryPanel.ts
  *
@@ -40,8 +41,8 @@ export class ElectrochemistryPanel extends Panel {
         fill: ElectrochemistryColors.panelBackgroundColorProperty,
         stroke: ElectrochemistryColors.panelBorderColorProperty,
         cornerRadius: PANEL_CORNER_RADIUS,
-        xMargin: 12,
-        yMargin: 10,
+        xMargin: ELECTROCHEMISTRY_PANEL_SETTINGS.OPTIONS_X_MARGIN,
+        yMargin: ELECTROCHEMISTRY_PANEL_SETTINGS.OPTIONS_Y_MARGIN,
       },
       providedOptions,
     );

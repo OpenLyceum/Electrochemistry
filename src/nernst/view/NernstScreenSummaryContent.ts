@@ -1,3 +1,4 @@
+import { NERNST_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * NernstScreenSummaryContent.ts
  *
@@ -24,7 +25,7 @@ export class NernstScreenSummaryContent extends ScreenSummaryContent {
       const verdict = verdictOf(state.potential);
       return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
         q: fromLog(state.logQ, 3),
-        logQ: fixed(state.logQ, 2),
+        logQ: fixed(state.logQ, NERNST_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DECIMALS),
         standard: formatPotential(state.standardPotential),
         value: formatPotential(state.potential),
         verdict:

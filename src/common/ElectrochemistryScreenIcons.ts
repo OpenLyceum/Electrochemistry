@@ -1,3 +1,4 @@
+import { ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS } from "../ElectrochemistryConstants.js";
 /**
  * ElectrochemistryScreenIcons.ts
  *
@@ -46,7 +47,7 @@ function beaker(
           .lineTo(x + width, y),
         {
           stroke: ElectrochemistryColors.glassColorProperty,
-          lineWidth: 6,
+          lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.BEAKER_LINE_WIDTH,
         },
       ),
     ],
@@ -54,24 +55,103 @@ function beaker(
 }
 
 export function createGalvanicCellIcon(): ScreenIcon {
-  const wire = { stroke: ElectrochemistryColors.wireColorProperty, lineWidth: 7 };
+  const wire = {
+    stroke: ElectrochemistryColors.wireColorProperty,
+    lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.WIRE_LINE_WIDTH,
+  };
   return iconFrom(
     new Node({
       children: [
         background(),
-        beaker(40, 180, 180, 160, ElectrochemistryColors.waterColorProperty),
-        beaker(328, 180, 180, 160, ElectrochemistryColors.copperTintColorProperty),
-        new Path(new Shape().moveTo(170, 300).lineTo(170, 150).lineTo(378, 150).lineTo(378, 300), {
-          stroke: ElectrochemistryColors.saltBridgeColorProperty,
-          lineWidth: 26,
+        beaker(
+          40,
+          180,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_WIDTH_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_HEIGHT_SEGMENT_2,
+          ElectrochemistryColors.waterColorProperty,
+        ),
+        beaker(
+          328,
+          180,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_WIDTH_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_HEIGHT_SEGMENT_2,
+          ElectrochemistryColors.copperTintColorProperty,
+        ),
+        new Path(
+          new Shape()
+            .moveTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_LINE_TO_Y,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_2,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_2,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_2,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y,
+            ),
+          {
+            stroke: ElectrochemistryColors.saltBridgeColorProperty,
+            lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_LINE_WIDTH,
+          },
+        ),
+        new Rectangle(
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_3,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_3,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_HEIGHT,
+          { fill: ElectrochemistryColors.zincColorProperty },
+        ),
+        new Rectangle(
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_4,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_3,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_HEIGHT,
+          { fill: ElectrochemistryColors.copperColorProperty },
+        ),
+        new Path(
+          new Shape()
+            .moveTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_5,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_3,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_5,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_4,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_6,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_4,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_X_SEGMENT_6,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_Y_SEGMENT_5,
+            ),
+          wire,
+        ),
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_RADIUS, {
+          fill: ElectrochemistryColors.bulbOnColorProperty,
+          opacity: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_OPACITY,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_ITEM_8_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_ITEM_8_Y,
         }),
-        new Rectangle(85, 110, 30, 210, { fill: ElectrochemistryColors.zincColorProperty }),
-        new Rectangle(433, 110, 30, 210, { fill: ElectrochemistryColors.copperColorProperty }),
-        new Path(new Shape().moveTo(100, 110).lineTo(100, 60).lineTo(448, 60).lineTo(448, 110), wire),
-        new Circle(56, { fill: ElectrochemistryColors.bulbOnColorProperty, opacity: 0.5, x: 274, y: 42 }),
-        new Circle(30, { fill: ElectrochemistryColors.bulbOnColorProperty, x: 274, y: 42 }),
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_RADIUS_SEGMENT_2, {
+          fill: ElectrochemistryColors.bulbOnColorProperty,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_ITEM_9_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_ITEM_9_Y,
+        }),
         ...[150, 210, 330, 390].map(
-          (x) => new Circle(9, { fill: ElectrochemistryColors.electronColorProperty, x, y: 60 }),
+          (x) =>
+            new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_RADIUS_SEGMENT_3, {
+              fill: ElectrochemistryColors.electronColorProperty,
+              x,
+              y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_GALVANIC_CELL_ICON_ITEM_10_Y,
+            }),
         ),
       ],
     }),
@@ -79,10 +159,10 @@ export function createGalvanicCellIcon(): ScreenIcon {
 }
 
 export function createNernstIcon(): ScreenIcon {
-  const left = 70;
-  const right = 500;
-  const top = 40;
-  const bottom = 330;
+  const left: number = ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.LEFT;
+  const right: number = ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.RIGHT;
+  const top: number = ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TOP;
+  const bottom: number = ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.BOTTOM;
   const zeroY = 250;
   return iconFrom(
     new Node({
@@ -91,21 +171,39 @@ export function createNernstIcon(): ScreenIcon {
         new Rectangle(left, top, right - left, bottom - top, {
           fill: ElectrochemistryColors.chartBackgroundColorProperty,
           stroke: ElectrochemistryColors.chartAxisColorProperty,
-          lineWidth: 4,
+          lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_LINE_WIDTH,
         }),
         new Line(left, zeroY, right, zeroY, {
           stroke: ElectrochemistryColors.zeroLineColorProperty,
-          lineWidth: 4,
-          lineDash: [14, 10],
+          lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_LINE_WIDTH,
+          lineDash: [ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_LINE_DASH_DASH, 10],
         }),
-        new Line(left, 80, right, 300, { stroke: ElectrochemistryColors.nernstLineColorProperty, lineWidth: 12 }),
-        new Circle(16, { stroke: ElectrochemistryColors.standardPointColorProperty, lineWidth: 6, x: 230, y: 162 }),
+        new Line(
+          left,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_START_Y,
+          right,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_END_Y,
+          {
+            stroke: ElectrochemistryColors.nernstLineColorProperty,
+            lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_ITEM_4_LINE_WIDTH,
+          },
+        ),
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_RADIUS, {
+          stroke: ElectrochemistryColors.standardPointColorProperty,
+          lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_ITEM_5_LINE_WIDTH,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_Y,
+        }),
         new Path(Shape.regularPolygon(4, 20), {
           fill: ElectrochemistryColors.equilibriumPointColorProperty,
-          x: 403,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_ITEM_6_X,
           y: zeroY,
         }),
-        new Circle(20, { fill: ElectrochemistryColors.currentPointColorProperty, x: 150, y: 121 }),
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_RADIUS_SEGMENT_2, {
+          fill: ElectrochemistryColors.currentPointColorProperty,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_ITEM_7_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_NERNST_ICON_ITEM_7_Y,
+        }),
       ],
     }),
   );
@@ -115,35 +213,139 @@ export function createElectrolysisIcon(): ScreenIcon {
   const tube = (x: number, gasHeight: number) =>
     new Node({
       children: [
-        new Rectangle(x - 26, 140, 52, 190, 26, 26, { fill: ElectrochemistryColors.waterColorProperty }),
-        new Rectangle(x - 24, 142, 48, gasHeight, 22, 22, { fill: ElectrochemistryColors.bubbleColorProperty }),
-        new Rectangle(x - 26, 140, 52, 190, 26, 26, {
-          stroke: ElectrochemistryColors.glassColorProperty,
-          lineWidth: 5,
-        }),
+        new Rectangle(
+          x - 26,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_Y,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_HEIGHT,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_X,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_Y,
+          { fill: ElectrochemistryColors.waterColorProperty },
+        ),
+        new Rectangle(
+          x - 24,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_Y_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_WIDTH_SEGMENT_2,
+          gasHeight,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_X_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_Y_SEGMENT_2,
+          { fill: ElectrochemistryColors.bubbleColorProperty },
+        ),
+        new Rectangle(
+          x - 26,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_Y,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_HEIGHT,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_X,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_CORNER_Y,
+          {
+            stroke: ElectrochemistryColors.glassColorProperty,
+            lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.TUBE_LINE_WIDTH,
+          },
+        ),
       ],
     });
   return iconFrom(
     new Node({
       children: [
         background(),
-        beaker(80, 200, 388, 150, ElectrochemistryColors.waterColorProperty),
-        tube(184, 120),
-        tube(364, 60),
-        new Rectangle(184 - 12, 300, 24, 26, { fill: ElectrochemistryColors.platinumColorProperty }),
-        new Rectangle(364 - 12, 300, 24, 26, { fill: ElectrochemistryColors.platinumColorProperty }),
-        new Path(new Shape().moveTo(234, 70).lineTo(130, 70).lineTo(130, 340).lineTo(184, 340), {
-          stroke: ElectrochemistryColors.wireColorProperty,
-          lineWidth: 7,
+        beaker(
+          80,
+          200,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_WIDTH_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_HEIGHT_SEGMENT_2,
+          ElectrochemistryColors.waterColorProperty,
+        ),
+        tube(184, ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_GAS_HEIGHT),
+        tube(364, ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_GAS_HEIGHT_SEGMENT_2),
+        new Rectangle(
+          184 - 12,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_HEIGHT,
+          { fill: ElectrochemistryColors.platinumColorProperty },
+        ),
+        new Rectangle(
+          364 - 12,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_WIDTH,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_HEIGHT,
+          { fill: ElectrochemistryColors.platinumColorProperty },
+        ),
+        new Path(
+          new Shape()
+            .moveTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_MOVE_TO_Y,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_2,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_2,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_2,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_3,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_3,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_3,
+            ),
+          {
+            stroke: ElectrochemistryColors.wireColorProperty,
+            lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_LINE_WIDTH,
+          },
+        ),
+        new Path(
+          new Shape()
+            .moveTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_4,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_4,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_5,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_4,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_5,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_5,
+            )
+            .lineTo(
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_6,
+              ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_5,
+            ),
+          {
+            stroke: ElectrochemistryColors.wireColorProperty,
+            lineWidth: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_LINE_WIDTH,
+          },
+        ),
+        new Rectangle(
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_7,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_6,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_WIDTH_SEGMENT_3,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_HEIGHT_SEGMENT_3,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_CORNER_X,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_CORNER_Y,
+          { fill: ElectrochemistryColors.meterBodyColorProperty },
+        ),
+        new Rectangle(
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_X_SEGMENT_8,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_Y_SEGMENT_7,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_WIDTH_SEGMENT_4,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_HEIGHT_SEGMENT_4,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_CORNER_X_SEGMENT_2,
+          ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_CORNER_Y_SEGMENT_2,
+          { fill: ElectrochemistryColors.meterScreenColorProperty },
+        ),
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_RADIUS, {
+          fill: ElectrochemistryColors.blackLeadColorProperty,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_ITEM_11_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_ITEM_11_Y,
         }),
-        new Path(new Shape().moveTo(314, 70).lineTo(418, 70).lineTo(418, 340).lineTo(364, 340), {
-          stroke: ElectrochemistryColors.wireColorProperty,
-          lineWidth: 7,
+        new Circle(ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_RADIUS, {
+          fill: ElectrochemistryColors.redLeadColorProperty,
+          x: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_ITEM_12_X,
+          y: ELECTROCHEMISTRY_SCREEN_ICONS_SETTINGS.CREATE_ELECTROLYSIS_ICON_ITEM_12_Y,
         }),
-        new Rectangle(214, 20, 120, 90, 12, 12, { fill: ElectrochemistryColors.meterBodyColorProperty }),
-        new Rectangle(230, 34, 88, 36, 6, 6, { fill: ElectrochemistryColors.meterScreenColorProperty }),
-        new Circle(10, { fill: ElectrochemistryColors.blackLeadColorProperty, x: 240, y: 90 }),
-        new Circle(10, { fill: ElectrochemistryColors.redLeadColorProperty, x: 308, y: 90 }),
       ],
     }),
   );

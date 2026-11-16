@@ -1,3 +1,4 @@
+import { NERNST_CHART_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * NernstChartNode.ts
  *
@@ -50,8 +51,8 @@ function niceRange(min: number, max: number, count: number): { range: Range; ste
   return { range: new Range(Math.floor(min / step) * step, Math.ceil(max / step) * step), step };
 }
 
-const MAX_LOG_K_SHOWN = 60;
-const MIN_LOG_Q_SPAN = 6;
+const MAX_LOG_K_SHOWN: number = NERNST_CHART_NODE_SETTINGS.MAX_LOG_K_SHOWN;
+const MIN_LOG_Q_SPAN: number = NERNST_CHART_NODE_SETTINGS.MIN_LOG_Q_SPAN;
 
 export type NernstChartData = {
   readonly standardPotential: number;
@@ -102,17 +103,23 @@ export class NernstChartNode extends Node {
 
     const zeroLine = new LinePlot(transform, [], {
       stroke: ElectrochemistryColors.zeroLineColorProperty,
-      lineDash: [5, 4],
+      lineDash: [
+        NERNST_CHART_NODE_SETTINGS.ZERO_LINE_LINE_DASH_DASH,
+        NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_ZERO_LINE_LINE_DASH_DASH,
+      ],
     });
     const nernstLine = new LinePlot(transform, [], {
       stroke: ElectrochemistryColors.nernstLineColorProperty,
-      lineWidth: 2.5,
+      lineWidth: NERNST_CHART_NODE_SETTINGS.NERNST_LINE_LINE_WIDTH,
     });
-    const standardPoint = new Circle(5, { stroke: ElectrochemistryColors.standardPointColorProperty, lineWidth: 2 });
-    const equilibriumPoint = new Path(Shape.regularPolygon(4, 7), {
+    const standardPoint = new Circle(NERNST_CHART_NODE_SETTINGS.STANDARD_POINT_RADIUS, {
+      stroke: ElectrochemistryColors.standardPointColorProperty,
+      lineWidth: NERNST_CHART_NODE_SETTINGS.STANDARD_POINT_LINE_WIDTH,
+    });
+    const equilibriumPoint = new Path(Shape.regularPolygon(4, NERNST_CHART_NODE_SETTINGS.EQUILIBRIUM_POINT_RADIUS), {
       fill: ElectrochemistryColors.equilibriumPointColorProperty,
     });
-    const currentPoint = new Circle(6, {
+    const currentPoint = new Circle(NERNST_CHART_NODE_SETTINGS.CURRENT_POINT_RADIUS, {
       fill: ElectrochemistryColors.currentPointColorProperty,
       stroke: ElectrochemistryColors.chartBackgroundColorProperty,
     });
@@ -129,7 +136,7 @@ export class NernstChartNode extends Node {
     const offChartText = new RichText("", {
       font: labelFont,
       fill: ElectrochemistryColors.equilibriumPointColorProperty,
-      maxWidth: width - 10,
+      maxWidth: width - NERNST_CHART_NODE_SETTINGS.OFF_CHART_TEXT_MAX_WIDTH_OFFSET,
     });
     const plot = new Node({
       children: [zeroLine, nernstLine, standardPoint, equilibriumPoint, currentPoint, standardLabel, equilibriumLabel],
@@ -144,7 +151,7 @@ export class NernstChartNode extends Node {
     });
     xTitle.boundsProperty.link(() => {
       xTitle.centerX = width / 2;
-      xTitle.top = height + 18;
+      xTitle.top = height + NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
     });
     const yTitle = new RichText(strings.yAxisStringProperty, {
       font: titleFont,
@@ -153,7 +160,7 @@ export class NernstChartNode extends Node {
       maxWidth: height,
     });
     yTitle.boundsProperty.link(() => {
-      yTitle.right = -32;
+      yTitle.right = NERNST_CHART_NODE_SETTINGS.RIGHT_RIGHT;
       yTitle.centerY = height / 2;
     });
     const title = new RichText(strings.chartTitleStringProperty, {
@@ -163,11 +170,11 @@ export class NernstChartNode extends Node {
     });
     title.boundsProperty.link(() => {
       title.left = 0;
-      title.bottom = -8;
+      title.bottom = NERNST_CHART_NODE_SETTINGS.BOTTOM_BOTTOM;
     });
     offChartText.boundsProperty.link(() => {
-      offChartText.right = width - 6;
-      offChartText.top = 4;
+      offChartText.right = width - NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
+      offChartText.top = NERNST_CHART_NODE_SETTINGS.TOP_TOP;
     });
 
     this.children = [
@@ -196,7 +203,7 @@ export class NernstChartNode extends Node {
       nernstLine.setDataSet([new Vector2(xRange.min, lineAt(xRange.min)), new Vector2(xRange.max, lineAt(xRange.max))]);
 
       standardPoint.translation = transform.modelToViewXY(0, data.standardPotential);
-      standardLabel.left = standardPoint.right + 4;
+      standardLabel.left = standardPoint.right + NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_LEFT_OFFSET;
       standardLabel.bottom = standardPoint.top;
 
       const kInRange = xRange.contains(data.logK);
@@ -210,7 +217,7 @@ export class NernstChartNode extends Node {
       );
       equilibriumLabel.top = equilibriumPoint.bottom + 3;
       if (equilibriumLabel.bottom > height) {
-        equilibriumLabel.bottom = equilibriumPoint.top - 3;
+        equilibriumLabel.bottom = equilibriumPoint.top - NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_BOTTOM_OFFSET;
       }
       offChartText.string = kInRange ? "" : StringUtils.fillIn(offChartPattern, { value: fixed(data.logK, 1) });
 

@@ -1,3 +1,4 @@
+import { ELECTROLYSIS_READOUTS_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectrolysisReadouts.ts
  *
@@ -29,6 +30,9 @@ export function productReadout(
   const reported = reportedElectrodeMass(product, material, mass);
   return StringUtils.fillIn(
     (isCathode ? strings.cathodeMassPatternStringProperty : strings.anodeMassPatternStringProperty).value,
-    { value: formatMass(reported.value), change: signed(reported.change, 3) },
+    {
+      value: formatMass(reported.value),
+      change: signed(reported.change, ELECTROLYSIS_READOUTS_SETTINGS.CHANGE_SIGNED_DECIMALS),
+    },
   );
 }

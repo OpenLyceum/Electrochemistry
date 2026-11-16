@@ -1,3 +1,4 @@
+import { ELECTROCHEMICAL_CELL_NUMERICS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectrochemicalCell.ts
  *
@@ -143,7 +144,11 @@ export class ElectrochemicalCell {
       (potential, saltBridge) => (saltBridge ? potential : 0),
     );
     this.anodeSideProperty = new DerivedProperty([this.potentialProperty], (potential) =>
-      Math.abs(potential) < 1e-12 ? null : potential > 0 ? "left" : "right",
+      Math.abs(potential) < ELECTROCHEMICAL_CELL_NUMERICS.ZERO_POTENTIAL_TOLERANCE
+        ? null
+        : potential > 0
+          ? "left"
+          : "right",
     );
     this.anodeGoneProperty = new DerivedProperty(
       [this.anodeSideProperty, this.left.massProperty, this.right.massProperty],
@@ -246,7 +251,8 @@ export class ElectrochemicalCell {
       const h = Math.min(
         remaining,
         (MAX_FRACTION_PER_SUBSTEP * cathode.moles) / cathodeIonRate,
-        (MAX_FRACTION_PER_SUBSTEP * Math.max(anode.moles, 1e-6)) / anodeIonRate,
+        (MAX_FRACTION_PER_SUBSTEP * Math.max(anode.moles, ELECTROCHEMICAL_CELL_NUMERICS.MIN_SUBSTEP_AMOUNT)) /
+          anodeIonRate,
         timeToDissolve,
       );
 

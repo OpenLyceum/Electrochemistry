@@ -1,3 +1,4 @@
+import { ELECTROCHEMISTRY_PREFERENCES_NODE_SETTINGS } from "../ElectrochemistryConstants.js";
 /**
  * ElectrochemistryPreferencesNode.ts
  *
@@ -23,27 +24,27 @@ export class ElectrochemistryPreferencesNode extends VBox {
     // colors (readable on white in both default and projector profiles), not textColorProperty
     // (which is near-white in default mode and would be invisible on the white dialog).
     const header = new Text(prefStrings.titleStringProperty, {
-      font: new PhetFont({ size: 18, weight: "bold" }),
+      font: new PhetFont({ size: ELECTROCHEMISTRY_PREFERENCES_NODE_SETTINGS.HEADER_FONT_SIZE, weight: "bold" }),
       fill: ElectrochemistryColors.controlSurfaceTextColorProperty,
     });
 
     const conventionalCurrentCheckbox = new Checkbox(
       preferencesModel.conventionalCurrentProperty,
       new Text(prefStrings.conventionalCurrentStringProperty, {
-        font: new PhetFont(14),
+        font: new PhetFont(ELECTROCHEMISTRY_PREFERENCES_NODE_SETTINGS.CONVENTIONAL_CURRENT_CHECKBOX_FONT_SIZE),
         fill: ElectrochemistryColors.controlSurfaceTextColorProperty,
       }),
       {
         checkboxColor: ElectrochemistryColors.controlSurfaceTextColorProperty,
         checkboxColorBackground: ElectrochemistryColors.controlSurfaceColorProperty,
-        spacing: 8,
+        spacing: ELECTROCHEMISTRY_PREFERENCES_NODE_SETTINGS.CONVENTIONAL_CURRENT_CHECKBOX_SPACING,
         ...(tandem && { tandem: tandem.createTandem("conventionalCurrentCheckbox") }),
       },
     );
 
     super({
       align: "left",
-      spacing: 12,
+      spacing: ELECTROCHEMISTRY_PREFERENCES_NODE_SETTINGS.CONSTRUCTOR_SPACING,
       children: [header, conventionalCurrentCheckbox],
     });
   }

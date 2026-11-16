@@ -1,3 +1,4 @@
+import { ELECTRON_FLOW_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectronFlowNode.ts
  *
@@ -10,8 +11,8 @@ import { Shape } from "scenerystack/kite";
 import { Circle, Node, Path } from "scenerystack/scenery";
 import ElectrochemistryColors from "../../ElectrochemistryColors.js";
 
-const SPACING = 26;
-const RADIUS = 3.5;
+const SPACING: number = ELECTRON_FLOW_NODE_SETTINGS.SPACING;
+const RADIUS: number = ELECTRON_FLOW_NODE_SETTINGS.RADIUS;
 
 export class ElectronFlowNode extends Node {
   private readonly points: readonly Vector2[];
@@ -82,7 +83,10 @@ export class ElectronFlowNode extends Node {
 }
 
 /** A wire drawn along the same polyline. */
-export function wirePath(points: readonly Vector2[], lineWidth = 3): Path {
+export function wirePath(
+  points: readonly Vector2[],
+  lineWidth: number = ELECTRON_FLOW_NODE_SETTINGS.DEFAULT_LINE_WIDTH,
+): Path {
   return new Path(ElectronFlowNode.wireShape(points), {
     stroke: ElectrochemistryColors.wireColorProperty,
     lineWidth,

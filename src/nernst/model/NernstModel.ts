@@ -1,3 +1,4 @@
+import { NERNST_MODEL_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * NernstModel.ts
  *
@@ -127,7 +128,7 @@ export class NernstModel implements TModel {
     // A beaker that was already copper keeps its half-cell, so refresh its electrode here too.
     this.cell.left.refresh();
     this.cell.right.refresh();
-    this.cell.left.concentrationProperty.value = 0.01;
+    this.cell.left.concentrationProperty.value = NERNST_MODEL_SETTINGS.CONCENTRATION_CELL_ANODE_CONCENTRATION;
     this.cell.right.concentrationProperty.value = 1;
     this.cell.restartRun();
   }

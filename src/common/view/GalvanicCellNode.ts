@@ -1,3 +1,4 @@
+import { GALVANIC_CELL_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * GalvanicCellNode.ts
  *
@@ -29,23 +30,23 @@ import { BEAKER_HEIGHT, BEAKER_WIDTH, HalfCellBeakerNode } from "./HalfCellBeake
 import { MeterNode } from "./MeterNode.js";
 
 const LEFT_BEAKER_X = 0;
-const RIGHT_BEAKER_X = 330;
-const BEAKER_Y = 210;
-const LEFT_ELECTRODE_X = 55;
-const RIGHT_ELECTRODE_X = 445;
-const LEFT_BRIDGE_X = 135;
-const RIGHT_BRIDGE_X = 365;
-const BRIDGE_TOP = 180;
-const BRIDGE_BOTTOM = 322;
-const WIRE_Y = 40;
-const LEAD_Y = 154;
-const BULB_X = 250;
-const SWITCH_LEFT = 338;
-const SWITCH_LENGTH = 38;
-const SWITCH_OPEN_ANGLE = -0.6;
-const ELECTRON_SPEED = 90;
-const BRIDGE_ION_SPEED = 26;
-const BRIDGE_IONS = 7;
+const RIGHT_BEAKER_X: number = GALVANIC_CELL_NODE_SETTINGS.RIGHT_BEAKER_X;
+const BEAKER_Y: number = GALVANIC_CELL_NODE_SETTINGS.BEAKER_Y;
+const LEFT_ELECTRODE_X: number = GALVANIC_CELL_NODE_SETTINGS.LEFT_ELECTRODE_X;
+const RIGHT_ELECTRODE_X: number = GALVANIC_CELL_NODE_SETTINGS.RIGHT_ELECTRODE_X;
+const LEFT_BRIDGE_X: number = GALVANIC_CELL_NODE_SETTINGS.LEFT_BRIDGE_X;
+const RIGHT_BRIDGE_X: number = GALVANIC_CELL_NODE_SETTINGS.RIGHT_BRIDGE_X;
+const BRIDGE_TOP: number = GALVANIC_CELL_NODE_SETTINGS.BRIDGE_TOP;
+const BRIDGE_BOTTOM: number = GALVANIC_CELL_NODE_SETTINGS.BRIDGE_BOTTOM;
+const WIRE_Y: number = GALVANIC_CELL_NODE_SETTINGS.WIRE_Y;
+const LEAD_Y: number = GALVANIC_CELL_NODE_SETTINGS.LEAD_Y;
+const BULB_X: number = GALVANIC_CELL_NODE_SETTINGS.BULB_X;
+const SWITCH_LEFT: number = GALVANIC_CELL_NODE_SETTINGS.SWITCH_LEFT;
+const SWITCH_LENGTH: number = GALVANIC_CELL_NODE_SETTINGS.SWITCH_LENGTH;
+const SWITCH_OPEN_ANGLE: number = GALVANIC_CELL_NODE_SETTINGS.SWITCH_OPEN_ANGLE;
+const ELECTRON_SPEED: number = GALVANIC_CELL_NODE_SETTINGS.ELECTRON_SPEED;
+const BRIDGE_ION_SPEED: number = GALVANIC_CELL_NODE_SETTINGS.BRIDGE_ION_SPEED;
+const BRIDGE_IONS: number = GALVANIC_CELL_NODE_SETTINGS.BRIDGE_IONS;
 
 export type GalvanicCellNodeOptions = {
   showIonsProperty: TReadOnlyProperty<boolean>;
@@ -100,7 +101,7 @@ export class GalvanicCellNode extends Node {
     const bridgeIonLayer = new Node({ pickable: false });
     for (let i = 0; i < 2 * BRIDGE_IONS; i++) {
       const cation = i % 2 === 0;
-      const node = new Circle(3.5, {
+      const node = new Circle(GALVANIC_CELL_NODE_SETTINGS.NODE_RADIUS, {
         fill: cation
           ? ElectrochemistryColors.bridgeCationColorProperty
           : ElectrochemistryColors.bridgeAnionColorProperty,
@@ -116,10 +117,14 @@ export class GalvanicCellNode extends Node {
     const bridge = new Node({
       cursor: interactiveSaltBridge ? "pointer" : null,
       children: [
-        new Path(bridgeShape, { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 22, lineJoin: "round" }),
+        new Path(bridgeShape, {
+          stroke: ElectrochemistryColors.glassColorProperty,
+          lineWidth: GALVANIC_CELL_NODE_SETTINGS.BRIDGE_LINE_WIDTH,
+          lineJoin: "round",
+        }),
         new Path(bridgeShape, {
           stroke: ElectrochemistryColors.saltBridgeColorProperty,
-          lineWidth: 17,
+          lineWidth: GALVANIC_CELL_NODE_SETTINGS.BRIDGE_ITEM_2_LINE_WIDTH,
           lineJoin: "round",
         }),
         bridgeIonLayer,
@@ -134,14 +139,19 @@ export class GalvanicCellNode extends Node {
     });
     const bridgeGhost = new Path(bridgeShape, {
       stroke: ElectrochemistryColors.glassColorProperty,
-      lineWidth: 1.5,
-      lineDash: [5, 4],
+      lineWidth: GALVANIC_CELL_NODE_SETTINGS.BRIDGE_GHOST_LINE_WIDTH,
+      lineDash: [
+        GALVANIC_CELL_NODE_SETTINGS.BRIDGE_GHOST_LINE_DASH_DASH,
+        GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_BRIDGE_GHOST_LINE_DASH_DASH,
+      ],
       cursor: interactiveSaltBridge ? "pointer" : null,
       visibleProperty: DerivedProperty.not(cell.saltBridgeProperty),
     });
     if (interactiveSaltBridge) {
       // The ghost is thin; give it the full bridge as its touch area.
-      bridgeGhost.touchArea = bridgeShape.getStrokedShape(new LineStyles({ lineWidth: 22 }));
+      bridgeGhost.touchArea = bridgeShape.getStrokedShape(
+        new LineStyles({ lineWidth: GALVANIC_CELL_NODE_SETTINGS.TOUCH_AREA_LINE_WIDTH }),
+      );
       bridgeGhost.mouseArea = bridgeGhost.touchArea;
       for (const node of [bridge, bridgeGhost]) {
         node.addInputListener(new PressListener({ press: () => cell.saltBridgeProperty.toggle() }));
@@ -155,7 +165,7 @@ export class GalvanicCellNode extends Node {
     const rightWire = wirePath([new Vector2(switchRight, WIRE_Y), new Vector2(rightTop.x, WIRE_Y), rightTop]);
     const blade = new Line(0, 0, SWITCH_LENGTH, 0, {
       stroke: ElectrochemistryColors.wireColorProperty,
-      lineWidth: 4,
+      lineWidth: GALVANIC_CELL_NODE_SETTINGS.BLADE_LINE_WIDTH,
       lineCap: "round",
       x: SWITCH_LEFT,
       y: WIRE_Y,
@@ -164,26 +174,43 @@ export class GalvanicCellNode extends Node {
       cursor: "pointer",
       children: [
         blade,
-        new Circle(4, { fill: ElectrochemistryColors.wireColorProperty, x: SWITCH_LEFT, y: WIRE_Y }),
-        new Circle(4, { fill: ElectrochemistryColors.wireColorProperty, x: switchRight, y: WIRE_Y }),
+        new Circle(GALVANIC_CELL_NODE_SETTINGS.SWITCH_NODE_RADIUS, {
+          fill: ElectrochemistryColors.wireColorProperty,
+          x: SWITCH_LEFT,
+          y: WIRE_Y,
+        }),
+        new Circle(GALVANIC_CELL_NODE_SETTINGS.SWITCH_NODE_RADIUS, {
+          fill: ElectrochemistryColors.wireColorProperty,
+          x: switchRight,
+          y: WIRE_Y,
+        }),
       ],
     });
-    switchNode.touchArea = Shape.rect(SWITCH_LEFT - 8, WIRE_Y - 30, SWITCH_LENGTH + 16, 40);
+    switchNode.touchArea = Shape.rect(
+      SWITCH_LEFT - 8,
+      WIRE_Y - 30,
+      SWITCH_LENGTH + 16,
+      GALVANIC_CELL_NODE_SETTINGS.TOUCH_AREA_HEIGHT,
+    );
     switchNode.mouseArea = switchNode.touchArea;
     switchNode.addInputListener(new PressListener({ press: () => cell.circuitClosedProperty.toggle() }));
     cell.circuitClosedProperty.link((closed) => {
       blade.rotation = closed ? 0 : SWITCH_OPEN_ANGLE;
     });
 
-    const glow = new Circle(1, { fill: ElectrochemistryColors.bulbOnColorProperty, x: BULB_X, y: WIRE_Y - 18 });
+    const glow = new Circle(1, {
+      fill: ElectrochemistryColors.bulbOnColorProperty,
+      x: BULB_X,
+      y: WIRE_Y - GALVANIC_CELL_NODE_SETTINGS.GLOW_Y_OFFSET,
+    });
     const bulb = new Node({
       children: [
         glow,
-        new Circle(13, {
+        new Circle(GALVANIC_CELL_NODE_SETTINGS.BULB_RADIUS, {
           fill: ElectrochemistryColors.bulbOffColorProperty,
           stroke: ElectrochemistryColors.glassColorProperty,
           x: BULB_X,
-          y: WIRE_Y - 18,
+          y: WIRE_Y - GALVANIC_CELL_NODE_SETTINGS.BULB_Y_OFFSET,
         }),
         new Path(
           new Shape()
@@ -191,14 +218,25 @@ export class GalvanicCellNode extends Node {
             .lineTo(BULB_X - 4, WIRE_Y - 20)
             .lineTo(BULB_X + 4, WIRE_Y - 20)
             .lineTo(BULB_X + 5, WIRE_Y - 8),
-          { stroke: ElectrochemistryColors.panelBorderColorProperty, lineWidth: 1.2 },
+          {
+            stroke: ElectrochemistryColors.panelBorderColorProperty,
+            lineWidth: GALVANIC_CELL_NODE_SETTINGS.BULB_LINE_WIDTH,
+          },
         ),
-        new Rectangle(BULB_X - 7, WIRE_Y - 7, 14, 7, { fill: ElectrochemistryColors.blackLeadColorProperty }),
+        new Rectangle(
+          BULB_X - 7,
+          WIRE_Y - 7,
+          GALVANIC_CELL_NODE_SETTINGS.BULB_WIDTH,
+          GALVANIC_CELL_NODE_SETTINGS.BULB_HEIGHT,
+          { fill: ElectrochemistryColors.blackLeadColorProperty },
+        ),
       ],
     });
     cell.currentProperty.link((current) => {
       const brightness = Math.min(1, Math.abs(current) / FULL_BRIGHTNESS_CURRENT);
-      glow.radius = 13 + 24 * brightness;
+      glow.radius =
+        GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_RADIUS_OFFSET +
+        GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_RADIUS_FACTOR * brightness;
       glow.opacity = Math.abs(current) > CURRENT_THRESHOLD ? 0.2 + 0.7 * brightness : 0;
     });
 
@@ -210,12 +248,12 @@ export class GalvanicCellNode extends Node {
     this.electrons.visibleProperty = flowing;
 
     // Conventional current runs opposite to the electrons in the external wire.
-    const conventionalArrow = new ArrowNode(0, 0, 50, 0, {
+    const conventionalArrow = new ArrowNode(0, 0, GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_END_X, 0, {
       fill: ElectrochemistryColors.redLeadColorProperty,
       stroke: null,
-      headHeight: 10,
-      headWidth: 12,
-      tailWidth: 3,
+      headHeight: GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_HEAD_HEIGHT,
+      headWidth: GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_HEAD_WIDTH,
+      tailWidth: GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_TAIL_WIDTH,
     });
     const conventionalLabel = new RichText(common.conventionalCurrentStringProperty, {
       font: new PhetFont({ size: FONT_SIZE.label, weight: "bold" }),
@@ -228,8 +266,8 @@ export class GalvanicCellNode extends Node {
         conventional.visible = isFlowing && show;
         // Electrons left → right (current > 0) means conventional current right → left.
         conventionalArrow.setTailAndTip(current > 0 ? 60 : 0, 0, current > 0 ? 0 : 60, 0);
-        conventionalArrow.x = 120;
-        conventionalArrow.y = WIRE_Y - 12;
+        conventionalArrow.x = GALVANIC_CELL_NODE_SETTINGS.X_X;
+        conventionalArrow.y = WIRE_Y - GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_Y_OFFSET;
         conventionalLabel.centerX = conventionalArrow.centerX;
         conventionalLabel.bottom = conventionalArrow.top - 2;
       },
@@ -247,7 +285,7 @@ export class GalvanicCellNode extends Node {
       blackLabel: "COM",
     });
     voltmeter.centerX = BULB_X;
-    voltmeter.top = WIRE_Y + 30;
+    voltmeter.top = WIRE_Y + GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
     const black = voltmeter.localToParentPoint(voltmeter.blackTerminal);
     const red = voltmeter.localToParentPoint(voltmeter.redTerminal);
     const lead = (from: Vector2, toX: number, color: typeof ElectrochemistryColors.redLeadColorProperty) =>
@@ -259,15 +297,23 @@ export class GalvanicCellNode extends Node {
           .lineTo(toX, LEAD_Y - 6),
         {
           stroke: color,
-          lineWidth: 2,
+          lineWidth: GALVANIC_CELL_NODE_SETTINGS.LEAD_LINE_WIDTH,
         },
       );
     const leads = new Node({
       children: [
         lead(black, leftTop.x, ElectrochemistryColors.blackLeadColorProperty),
         lead(red, rightTop.x, ElectrochemistryColors.redLeadColorProperty),
-        new Circle(3, { fill: ElectrochemistryColors.blackLeadColorProperty, x: leftTop.x, y: LEAD_Y - 6 }),
-        new Circle(3, { fill: ElectrochemistryColors.redLeadColorProperty, x: rightTop.x, y: LEAD_Y - 6 }),
+        new Circle(GALVANIC_CELL_NODE_SETTINGS.LEADS_RADIUS, {
+          fill: ElectrochemistryColors.blackLeadColorProperty,
+          x: leftTop.x,
+          y: LEAD_Y - GALVANIC_CELL_NODE_SETTINGS.LEADS_Y_OFFSET,
+        }),
+        new Circle(GALVANIC_CELL_NODE_SETTINGS.LEADS_RADIUS, {
+          fill: ElectrochemistryColors.redLeadColorProperty,
+          x: rightTop.x,
+          y: LEAD_Y - GALVANIC_CELL_NODE_SETTINGS.LEADS_Y_OFFSET,
+        }),
       ],
     });
 
@@ -345,10 +391,10 @@ export class GalvanicCellNode extends Node {
         });
       },
     );
-    const box = new VBox({ spacing: 2, children: [role, name, concentration] });
+    const box = new VBox({ spacing: GALVANIC_CELL_NODE_SETTINGS.BOX_SPACING, children: [role, name, concentration] });
     box.localBoundsProperty.link(() => {
       box.centerX = beakerX + BEAKER_WIDTH / 2;
-      box.top = BEAKER_Y + BEAKER_HEIGHT + 8;
+      box.top = BEAKER_Y + BEAKER_HEIGHT + GALVANIC_CELL_NODE_SETTINGS.CREATE_LABEL_TOP_OFFSET;
     });
     return box;
   }

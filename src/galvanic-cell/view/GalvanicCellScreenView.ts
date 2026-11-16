@@ -1,3 +1,4 @@
+import { GALVANIC_CELL_SCREEN_VIEW_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * GalvanicCellScreenView.ts
  *
@@ -60,12 +61,12 @@ type SelfOptions = {
 
 export type GalvanicCellScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-const CELL_SCALE = 0.92;
-const CELL_LEFT = 50;
-const CELL_TOP = 28;
-const REACTIONS_WIDTH = 530;
-const MIDDLE_LEFT = 562;
-const MIDDLE_WIDTH = 190;
+const CELL_SCALE: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.CELL_SCALE;
+const CELL_LEFT: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.CELL_LEFT;
+const CELL_TOP: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.CELL_TOP;
+const REACTIONS_WIDTH: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.REACTIONS_WIDTH;
+const MIDDLE_LEFT: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.MIDDLE_LEFT;
+const MIDDLE_WIDTH: number = GALVANIC_CELL_SCREEN_VIEW_SETTINGS.MIDDLE_WIDTH;
 const SIDE_CONTENT_WIDTH = SIDE_COLUMN_WIDTH - 24;
 const MIDDLE_CONTENT_WIDTH = MIDDLE_WIDTH - 24;
 
@@ -100,7 +101,7 @@ export class GalvanicCellScreenView extends ScreenView {
       new RichText("", {
         font: new PhetFont(FONT_SIZE.control),
         fill: ElectrochemistryColors.textColorProperty,
-        maxWidth: REACTIONS_WIDTH - 24,
+        maxWidth: REACTIONS_WIDTH - GALVANIC_CELL_SCREEN_VIEW_SETTINGS.LINE_MAX_WIDTH_OFFSET,
       });
     const notationLine = line();
     const anodeLine = line();
@@ -149,8 +150,14 @@ export class GalvanicCellScreenView extends ScreenView {
               reaction: overallReaction(cathodeHalf, anodeHalf),
             });
         standardLine.string = StringUtils.fillIn(common.standardPotentialPatternStringProperty.value, {
-          cathode: signed(cathodeHalf.standardPotential, 3),
-          anode: signed(anodeHalf.standardPotential, 3),
+          cathode: signed(
+            cathodeHalf.standardPotential,
+            GALVANIC_CELL_SCREEN_VIEW_SETTINGS.STANDARD_POTENTIAL_SIGNED_DECIMALS,
+          ),
+          anode: signed(
+            anodeHalf.standardPotential,
+            GALVANIC_CELL_SCREEN_VIEW_SETTINGS.STANDARD_POTENTIAL_SIGNED_DECIMALS,
+          ),
           value: formatPotential(standardCellPotential(cathodeHalf, anodeHalf)),
         });
       },
@@ -158,7 +165,7 @@ export class GalvanicCellScreenView extends ScreenView {
     const reactionsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 5,
+        spacing: GALVANIC_CELL_SCREEN_VIEW_SETTINGS.REACTIONS_PANEL_SPACING,
         children: [notationLine, anodeLine, cathodeLine, overallLine, standardLine],
       }),
       { minWidth: REACTIONS_WIDTH, maxWidth: REACTIONS_WIDTH, visibleProperty: model.showReactionsProperty },
@@ -248,7 +255,10 @@ export class GalvanicCellScreenView extends ScreenView {
           : StringUtils.fillIn(common.electrodeMassPatternStringProperty.value, {
               metal: halfCell.reduced,
               value: formatMass(state.massProperty.value),
-              change: signed(state.massProperty.value - ELECTRODE_MASS, 3),
+              change: signed(
+                state.massProperty.value - ELECTRODE_MASS,
+                GALVANIC_CELL_SCREEN_VIEW_SETTINGS.UPDATE_MEASUREMENTS_DECIMALS,
+              ),
             });
       }
     };
@@ -278,7 +288,7 @@ export class GalvanicCellScreenView extends ScreenView {
     const measurementsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 4,
+        spacing: GALVANIC_CELL_SCREEN_VIEW_SETTINGS.MEASUREMENTS_PANEL_SPACING,
         children: [
           heading(strings.measurementsHeadingStringProperty, MIDDLE_CONTENT_WIDTH),
           currentText,
@@ -297,7 +307,7 @@ export class GalvanicCellScreenView extends ScreenView {
       model.advance(1 / 60),
     );
     timeControl.centerX = MIDDLE_LEFT + MIDDLE_WIDTH / 2;
-    timeControl.top = measurementsPanel.bottom + 16;
+    timeControl.top = measurementsPanel.bottom + GALVANIC_CELL_SCREEN_VIEW_SETTINGS.CONSTRUCTOR_TOP_OFFSET;
 
     // ── Controls ────────────────────────────────────────────────────────────────
     const leftMenu = comboBox(
@@ -317,7 +327,7 @@ export class GalvanicCellScreenView extends ScreenView {
     const halfCellsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 8,
+        spacing: GALVANIC_CELL_SCREEN_VIEW_SETTINGS.HALF_CELLS_PANEL_SPACING,
         children: [
           heading(strings.halfCellsHeadingStringProperty, SIDE_CONTENT_WIDTH),
           labeled(common.leftHalfCellStringProperty, leftMenu, SIDE_CONTENT_WIDTH),
@@ -336,7 +346,7 @@ export class GalvanicCellScreenView extends ScreenView {
     const circuitPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 8,
+        spacing: GALVANIC_CELL_SCREEN_VIEW_SETTINGS.CIRCUIT_PANEL_SPACING,
         children: [
           heading(strings.circuitHeadingStringProperty, SIDE_CONTENT_WIDTH),
           saltBridgeCheckbox,
@@ -352,7 +362,7 @@ export class GalvanicCellScreenView extends ScreenView {
     const showPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 8,
+        spacing: GALVANIC_CELL_SCREEN_VIEW_SETTINGS.SHOW_PANEL_SPACING,
         children: [heading(strings.showHeadingStringProperty, SIDE_CONTENT_WIDTH), reactionsCheckbox, ionsCheckbox],
       }),
       { minWidth: SIDE_COLUMN_WIDTH, maxWidth: SIDE_COLUMN_WIDTH },

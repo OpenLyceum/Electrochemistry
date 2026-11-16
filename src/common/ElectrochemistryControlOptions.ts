@@ -1,3 +1,4 @@
+import { ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS } from "../ElectrochemistryConstants.js";
 /**
  * ElectrochemistryControlOptions.ts
  *
@@ -14,10 +15,19 @@ import type { CheckboxOptions, HSliderOptions } from "scenerystack/sun";
 import ElectrochemistryColors from "../ElectrochemistryColors.js";
 import { FLAT_RECTANGULAR_BUTTON_OPTIONS } from "./ElectrochemistryButtonOptions.js";
 
-const SLIDER_THUMB_SIZE = new Dimension2(12, 22);
-const STANDALONE_SLIDER_TRACK_SIZE = new Dimension2(150, 3);
-const NUMBER_CONTROL_SLIDER_TRACK_SIZE = new Dimension2(110, 3);
-const CHECKBOX_BOX_WIDTH = 16;
+const SLIDER_THUMB_SIZE = new Dimension2(
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.SLIDER_THUMB_SIZE_WIDTH,
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.SLIDER_THUMB_SIZE_HEIGHT,
+);
+const STANDALONE_SLIDER_TRACK_SIZE = new Dimension2(
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.STANDALONE_SLIDER_TRACK_SIZE_WIDTH,
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.STANDALONE_SLIDER_TRACK_SIZE_HEIGHT,
+);
+const NUMBER_CONTROL_SLIDER_TRACK_SIZE = new Dimension2(
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.NUMBER_CONTROL_SLIDER_TRACK_SIZE_WIDTH,
+  ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.NUMBER_CONTROL_SLIDER_TRACK_SIZE_HEIGHT,
+);
+const CHECKBOX_BOX_WIDTH: number = ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.CHECKBOX_BOX_WIDTH;
 
 /** Options for standalone HSlider instances in control panels. @public */
 export const ELECTROCHEMISTRY_SLIDER_OPTIONS = {
@@ -28,11 +38,15 @@ export const ELECTROCHEMISTRY_SLIDER_OPTIONS = {
 
 /** Base NumberControl options; spread into each instance and add titleNodeOptions as needed. @public */
 export const ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS = {
-  arrowButtonOptions: { ...FLAT_RECTANGULAR_BUTTON_OPTIONS, scale: 0.75 },
+  arrowButtonOptions: {
+    ...FLAT_RECTANGULAR_BUTTON_OPTIONS,
+    scale: ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS_SCALE,
+  },
   layoutFunction: NumberControl.createLayoutFunction4({
-    sliderPadding: 4,
-    arrowButtonSpacing: 3,
-    verticalSpacing: 4,
+    sliderPadding: ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS_SLIDER_PADDING,
+    arrowButtonSpacing:
+      ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS_ARROW_BUTTON_SPACING,
+    verticalSpacing: ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS_VERTICAL_SPACING,
   }),
   sliderOptions: {
     trackSize: NUMBER_CONTROL_SLIDER_TRACK_SIZE,
@@ -53,7 +67,7 @@ export const ELECTROCHEMISTRY_NUMBER_CONTROL_OPTIONS = {
  */
 export const ELECTROCHEMISTRY_CHECKBOX_OPTIONS = {
   boxWidth: CHECKBOX_BOX_WIDTH,
-  spacing: 4,
+  spacing: ELECTROCHEMISTRY_CONTROL_OPTIONS_SETTINGS.ELECTROCHEMISTRY_CHECKBOX_OPTIONS_SPACING,
   checkboxColor: ElectrochemistryColors.textColorProperty,
   checkboxColorBackground: ElectrochemistryColors.panelBackgroundColorProperty,
 } satisfies CheckboxOptions;

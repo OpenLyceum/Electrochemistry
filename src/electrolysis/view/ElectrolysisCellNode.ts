@@ -1,3 +1,4 @@
+import { ELECTROLYSIS_CELL_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectrolysisCellNode.ts
  *
@@ -35,28 +36,28 @@ import {
 import { StringManager } from "../../i18n/StringManager.js";
 import type { ElectrolysisModel } from "../model/ElectrolysisModel.js";
 
-const BEAKER_LEFT = 60;
-const BEAKER_RIGHT = 460;
-const BEAKER_TOP = 250;
-const BEAKER_BOTTOM = 450;
-const LIQUID_TOP = 280;
-const CATHODE_X = 170;
-const ANODE_X = 350;
-const BUS_Y = 150;
-const ELECTRODE_TOP = 200;
-const ELECTRODE_BOTTOM = 420;
-const PLATE_WIDTH = 26;
-const TUBE_TOP = 200;
-const TUBE_BOTTOM = 438;
-const TUBE_HALF_WIDTH = 18;
-const TUBE_SCALE_LENGTH = 200;
-const GAS_PLATE_TOP = 392;
-const GAS_PLATE_BOTTOM = 432;
-const GAS_WIRE_OFFSET = 34;
-const UNDER_TUBE_Y = 443;
-const ELECTRON_SPEED = 90;
-const BUBBLE_SPEED = 70;
-const BUBBLES_PER_TUBE = 8;
+const BEAKER_LEFT: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BEAKER_LEFT;
+const BEAKER_RIGHT: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BEAKER_RIGHT;
+const BEAKER_TOP: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BEAKER_TOP;
+const BEAKER_BOTTOM: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BEAKER_BOTTOM;
+const LIQUID_TOP: number = ELECTROLYSIS_CELL_NODE_SETTINGS.LIQUID_TOP;
+const CATHODE_X: number = ELECTROLYSIS_CELL_NODE_SETTINGS.CATHODE_X;
+const ANODE_X: number = ELECTROLYSIS_CELL_NODE_SETTINGS.ANODE_X;
+const BUS_Y: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BUS_Y;
+const ELECTRODE_TOP: number = ELECTROLYSIS_CELL_NODE_SETTINGS.ELECTRODE_TOP;
+const ELECTRODE_BOTTOM: number = ELECTROLYSIS_CELL_NODE_SETTINGS.ELECTRODE_BOTTOM;
+const PLATE_WIDTH: number = ELECTROLYSIS_CELL_NODE_SETTINGS.PLATE_WIDTH;
+const TUBE_TOP: number = ELECTROLYSIS_CELL_NODE_SETTINGS.TUBE_TOP;
+const TUBE_BOTTOM: number = ELECTROLYSIS_CELL_NODE_SETTINGS.TUBE_BOTTOM;
+const TUBE_HALF_WIDTH: number = ELECTROLYSIS_CELL_NODE_SETTINGS.TUBE_HALF_WIDTH;
+const TUBE_SCALE_LENGTH: number = ELECTROLYSIS_CELL_NODE_SETTINGS.TUBE_SCALE_LENGTH;
+const GAS_PLATE_TOP: number = ELECTROLYSIS_CELL_NODE_SETTINGS.GAS_PLATE_TOP;
+const GAS_PLATE_BOTTOM: number = ELECTROLYSIS_CELL_NODE_SETTINGS.GAS_PLATE_BOTTOM;
+const GAS_WIRE_OFFSET: number = ELECTROLYSIS_CELL_NODE_SETTINGS.GAS_WIRE_OFFSET;
+const UNDER_TUBE_Y: number = ELECTROLYSIS_CELL_NODE_SETTINGS.UNDER_TUBE_Y;
+const ELECTRON_SPEED: number = ELECTROLYSIS_CELL_NODE_SETTINGS.ELECTRON_SPEED;
+const BUBBLE_SPEED: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BUBBLE_SPEED;
+const BUBBLES_PER_TUBE: number = ELECTROLYSIS_CELL_NODE_SETTINGS.BUBBLES_PER_TUBE;
 
 /**
  * One electrode's drawing. `gas` and `bubbles` are kept for the life of the node and moved in and
@@ -92,14 +93,19 @@ export class ElectrolysisCellNode extends Node {
     // ── Power supply ────────────────────────────────────────────────────────────
     const voltageText = new DerivedProperty(
       [model.voltageProperty, model.powerOnProperty, common.voltsPatternStringProperty],
-      (voltage, on, pattern) => (on ? StringUtils.fillIn(pattern, { value: fixed(voltage, 2) }) : "– – –"),
+      (voltage, on, pattern) =>
+        on
+          ? StringUtils.fillIn(pattern, {
+              value: fixed(voltage, ELECTROLYSIS_CELL_NODE_SETTINGS.VOLTAGE_TEXT_DECIMALS),
+            })
+          : "– – –",
     );
     const currentText = new DerivedProperty(
       [model.currentProperty, model.powerOnProperty, common.ampsPatternStringProperty],
       (current, on, pattern) => (on ? StringUtils.fillIn(pattern, { value: formatCurrent(current) }) : ""),
     );
     this.supply = new MeterNode({
-      width: 170,
+      width: ELECTROLYSIS_CELL_NODE_SETTINGS.SUPPLY_WIDTH,
       lines: [voltageText, currentText],
       caption: strings.supplyCaptionStringProperty,
       blackLabel: "−",
@@ -133,14 +139,20 @@ export class ElectrolysisCellNode extends Node {
         .lineTo(BEAKER_LEFT, BEAKER_BOTTOM)
         .lineTo(BEAKER_RIGHT, BEAKER_BOTTOM)
         .lineTo(BEAKER_RIGHT, BEAKER_TOP),
-      { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 2.5 },
+      {
+        stroke: ElectrochemistryColors.glassColorProperty,
+        lineWidth: ELECTROLYSIS_CELL_NODE_SETTINGS.BEAKER_LINE_WIDTH,
+      },
     );
 
     const electrodeView = (x: number): ElectrodeView => ({
       x,
       layer: new Node(),
       bubbles: new Node({ pickable: false }),
-      gas: new Rectangle(0, 0, 1, 1, { fill: ElectrochemistryColors.bubbleColorProperty, opacity: 0.55 }),
+      gas: new Rectangle(0, 0, 1, 1, {
+        fill: ElectrochemistryColors.bubbleColorProperty,
+        opacity: ELECTROLYSIS_CELL_NODE_SETTINGS.ELECTRODE_VIEW_OPACITY,
+      }),
       plate: null,
       coat: null,
     });
@@ -156,11 +168,11 @@ export class ElectrolysisCellNode extends Node {
       const label = new Text(text, {
         font: new PhetFont({ size: FONT_SIZE.small, weight: "bold" }),
         fill: color,
-        maxWidth: 170,
+        maxWidth: ELECTROLYSIS_CELL_NODE_SETTINGS.LABEL_MAX_WIDTH,
       });
       label.boundsProperty.link(() => {
         label.centerX = x;
-        label.top = BEAKER_BOTTOM + 8;
+        label.top = BEAKER_BOTTOM + ELECTROLYSIS_CELL_NODE_SETTINGS.ROLE_LABEL_TOP_OFFSET;
       });
       return label;
     };
@@ -178,9 +190,9 @@ export class ElectrolysisCellNode extends Node {
     const conventionalArrow = new ArrowNode(red.x + 14, red.y + 14, red.x + 14, BUS_Y - 8, {
       fill: ElectrochemistryColors.redLeadColorProperty,
       stroke: null,
-      headHeight: 10,
-      headWidth: 12,
-      tailWidth: 3,
+      headHeight: ELECTROLYSIS_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_HEAD_HEIGHT,
+      headWidth: ELECTROLYSIS_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_HEAD_WIDTH,
+      tailWidth: ELECTROLYSIS_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_TAIL_WIDTH,
     });
     const conventional = new Node({
       children: [
@@ -188,7 +200,7 @@ export class ElectrolysisCellNode extends Node {
         new RichText(common.conventionalCurrentStringProperty, {
           font: new PhetFont({ size: FONT_SIZE.label, weight: "bold" }),
           fill: ElectrochemistryColors.redLeadColorProperty,
-          left: conventionalArrow.right + 4,
+          left: conventionalArrow.right + ELECTROLYSIS_CELL_NODE_SETTINGS.CONVENTIONAL_LEFT_OFFSET,
           centerY: conventionalArrow.centerY,
         }),
       ],
@@ -241,8 +253,8 @@ export class ElectrolysisCellNode extends Node {
     const red = this.supply.localToParentPoint(this.supply.redTerminal);
     const cathodeWire = this.wirePoints(black, CATHODE_X, system.cathodeProduct);
     const anodeWire = this.wirePoints(red, ANODE_X, system.anodeProduct).reverse();
-    this.wireLayer.addChild(wirePath(cathodeWire, 2.5));
-    this.wireLayer.addChild(wirePath(anodeWire, 2.5));
+    this.wireLayer.addChild(wirePath(cathodeWire, ELECTROLYSIS_CELL_NODE_SETTINGS.WIRE_PATH_LINE_WIDTH));
+    this.wireLayer.addChild(wirePath(anodeWire, ELECTROLYSIS_CELL_NODE_SETTINGS.WIRE_PATH_LINE_WIDTH));
     this.cathodeElectrons = new ElectronFlowNode(cathodeWire);
     this.anodeElectrons = new ElectronFlowNode(anodeWire);
     this.wireLayer.addChild(this.cathodeElectrons);
@@ -303,9 +315,9 @@ export class ElectrolysisCellNode extends Node {
         if (major) {
           ticks.addChild(
             new Text(String(volume), {
-              font: new PhetFont(9),
+              font: new PhetFont(ELECTROLYSIS_CELL_NODE_SETTINGS.BUILD_ELECTRODE_FONT_SIZE),
               fill: ElectrochemistryColors.textColorProperty,
-              right: x - TUBE_HALF_WIDTH - 3,
+              right: x - TUBE_HALF_WIDTH - ELECTROLYSIS_CELL_NODE_SETTINGS.BUILD_ELECTRODE_RIGHT_OFFSET,
               centerY: y,
             }),
           );
@@ -315,16 +327,25 @@ export class ElectrolysisCellNode extends Node {
         font: new PhetFont(FONT_SIZE.tiny),
         fill: ElectrochemistryColors.textColorProperty,
         centerX: x,
-        bottom: TUBE_TOP - 4,
+        bottom: TUBE_TOP - ELECTROLYSIS_CELL_NODE_SETTINGS.FORMULA_BOTTOM_OFFSET,
       });
       view.layer.children = [
         filled,
         view.gas,
-        new Rectangle(x - 9, GAS_PLATE_TOP, 18, GAS_PLATE_BOTTOM - GAS_PLATE_TOP, {
-          fill: materialColor(material),
-          stroke: ElectrochemistryColors.panelBorderColorProperty,
+        new Rectangle(
+          x - 9,
+          GAS_PLATE_TOP,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_WIDTH,
+          GAS_PLATE_BOTTOM - GAS_PLATE_TOP,
+          {
+            fill: materialColor(material),
+            stroke: ElectrochemistryColors.panelBorderColorProperty,
+          },
+        ),
+        new Path(tubeShape, {
+          stroke: ElectrochemistryColors.glassColorProperty,
+          lineWidth: ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_LINE_WIDTH,
         }),
-        new Path(tubeShape, { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 2 }),
         ticks,
         formula,
       ];
@@ -332,7 +353,11 @@ export class ElectrolysisCellNode extends Node {
         view.bubbles.addChild(
           new Circle(1.5 + (i % 3), {
             stroke: ElectrochemistryColors.bubbleColorProperty,
-            x: x + ((i % 4) - 1.5) * 6,
+            x:
+              x +
+              ((i % ELECTROLYSIS_CELL_NODE_SETTINGS.BUILD_ELECTRODE_X_FACTOR) -
+                ELECTROLYSIS_CELL_NODE_SETTINGS.BUILD_ELECTRODE_X_OFFSET) *
+                6,
             y: GAS_PLATE_TOP - (i * (GAS_PLATE_TOP - TUBE_TOP)) / BUBBLES_PER_TUBE,
             visible: false,
           }),
@@ -344,13 +369,36 @@ export class ElectrolysisCellNode extends Node {
       // Silver coats the spoon below the liquid line; its opacity follows the silver deposited.
       view.coat = new Path(
         new Shape()
-          .rect(x - 4, LIQUID_TOP, 8, ELECTRODE_TOP + 170 - LIQUID_TOP)
-          .ellipse(x, ELECTRODE_TOP + 196, 17, 30, 0),
+          .rect(x - 4, LIQUID_TOP, ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_WIDTH, ELECTRODE_TOP + 170 - LIQUID_TOP)
+          .ellipse(
+            x,
+            ELECTRODE_TOP + 196,
+            ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_RADIUS_X,
+            ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_RADIUS_Y,
+            0,
+          ),
         { fill: ElectrochemistryColors.silverColorProperty, opacity: 0 },
       );
       view.layer.children = [
-        new Rectangle(x - 4, ELECTRODE_TOP, 8, 170, 3, 3, { fill: materialColor(material) }),
-        new Path(Shape.ellipse(x, ELECTRODE_TOP + 196, 17, 30, 0), { fill: materialColor(material) }),
+        new Rectangle(
+          x - 4,
+          ELECTRODE_TOP,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.RECTANGLE_WIDTH,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_HEIGHT,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_CORNER_X,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_CORNER_Y,
+          { fill: materialColor(material) },
+        ),
+        new Path(
+          Shape.ellipse(
+            x,
+            ELECTRODE_TOP + 196,
+            ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_RADIUS_X,
+            ELECTROLYSIS_CELL_NODE_SETTINGS.CHILDREN_RADIUS_Y,
+            0,
+          ),
+          { fill: materialColor(material) },
+        ),
         view.coat,
       ];
     } else {
@@ -359,8 +407,8 @@ export class ElectrolysisCellNode extends Node {
         ELECTRODE_TOP,
         PLATE_WIDTH,
         ELECTRODE_BOTTOM - ELECTRODE_TOP,
-        2,
-        2,
+        ELECTROLYSIS_CELL_NODE_SETTINGS.PLATE_CORNER_X,
+        ELECTROLYSIS_CELL_NODE_SETTINGS.PLATE_CORNER_Y,
         {
           fill: materialColor(material),
           stroke: ElectrochemistryColors.panelBorderColorProperty,
@@ -369,14 +417,22 @@ export class ElectrolysisCellNode extends Node {
       view.layer.children = [view.plate];
       if (product.kind === "metal" && !product.dissolves) {
         // Plated metal: a coat on the immersed part, thicker as more is deposited.
-        view.coat = new Rectangle(0, 0, 10, 10, 2, 2, {
-          fill:
-            product.formula === "Ag"
-              ? ElectrochemistryColors.silverColorProperty
-              : ElectrochemistryColors.copperColorProperty,
-          opacity: 0.95,
-          visible: false,
-        });
+        view.coat = new Rectangle(
+          0,
+          0,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.VIEW_WIDTH,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_HEIGHT,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_CORNER_X,
+          ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_CORNER_Y,
+          {
+            fill:
+              product.formula === "Ag"
+                ? ElectrochemistryColors.silverColorProperty
+                : ElectrochemistryColors.copperColorProperty,
+            opacity: ELECTROLYSIS_CELL_NODE_SETTINGS.COAT_OPACITY,
+            visible: false,
+          },
+        );
         view.layer.addChild(view.coat);
       }
     }
@@ -450,7 +506,7 @@ export class ElectrolysisCellNode extends Node {
       for (const bubble of view.bubbles.children) {
         bubble.visible = current > 0 && bubble.y > gasLevel;
         if (current > 0) {
-          bubble.y -= BUBBLE_SPEED * (0.4 + strength) * dt;
+          bubble.y -= BUBBLE_SPEED * (ELECTROLYSIS_CELL_NODE_SETTINGS.STEP_Y_OFFSET + strength) * dt;
           if (bubble.y < gasLevel) {
             bubble.y = GAS_PLATE_TOP;
           }

@@ -1,3 +1,4 @@
+import { HALF_CELL_BEAKER_NODE_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * HalfCellBeakerNode.ts
  *
@@ -22,19 +23,19 @@ import { isGasElectrode } from "../model/HalfCells.js";
 import { disposeChildren } from "./disposeChildren.js";
 import { electrodeColor, ionColor, solutionTint } from "./halfCellColors.js";
 
-export const BEAKER_WIDTH = 170;
-export const BEAKER_HEIGHT = 160;
+export const BEAKER_WIDTH: number = HALF_CELL_BEAKER_NODE_SETTINGS.BEAKER_WIDTH;
+export const BEAKER_HEIGHT: number = HALF_CELL_BEAKER_NODE_SETTINGS.BEAKER_HEIGHT;
 /** Liquid surface, below the beaker's rim. */
-const LIQUID_TOP = 30;
+const LIQUID_TOP: number = HALF_CELL_BEAKER_NODE_SETTINGS.LIQUID_TOP;
 /** Top of the electrode (where wires attach), above the rim. */
-const ELECTRODE_TOP = -40;
-const ELECTRODE_BOTTOM = 140;
-const ELECTRODE_WIDTH = 24;
-const IONS_PER_MOLAR = 10;
-const MAX_IONS = 30;
-const ION_RADIUS = 6;
-const ION_SPEED = 22;
-const BUBBLE_SPEED = 40;
+const ELECTRODE_TOP: number = HALF_CELL_BEAKER_NODE_SETTINGS.ELECTRODE_TOP;
+const ELECTRODE_BOTTOM: number = HALF_CELL_BEAKER_NODE_SETTINGS.ELECTRODE_BOTTOM;
+const ELECTRODE_WIDTH: number = HALF_CELL_BEAKER_NODE_SETTINGS.ELECTRODE_WIDTH;
+const IONS_PER_MOLAR: number = HALF_CELL_BEAKER_NODE_SETTINGS.IONS_PER_MOLAR;
+const MAX_IONS: number = HALF_CELL_BEAKER_NODE_SETTINGS.MAX_IONS;
+const ION_RADIUS: number = HALF_CELL_BEAKER_NODE_SETTINGS.ION_RADIUS;
+const ION_SPEED: number = HALF_CELL_BEAKER_NODE_SETTINGS.ION_SPEED;
+const BUBBLE_SPEED: number = HALF_CELL_BEAKER_NODE_SETTINGS.BUBBLE_SPEED;
 
 type Particle = { node: Circle; position: Vector2; velocity: Vector2 };
 
@@ -69,7 +70,12 @@ export class HalfCellBeakerNode extends Node {
     this.electrodeX = electrodeX;
     this.bridgeX = bridgeX;
 
-    const solution = new Rectangle(2, LIQUID_TOP, BEAKER_WIDTH - 4, BEAKER_HEIGHT - LIQUID_TOP - 2);
+    const solution = new Rectangle(
+      HALF_CELL_BEAKER_NODE_SETTINGS.SOLUTION_X,
+      LIQUID_TOP,
+      BEAKER_WIDTH - 4,
+      BEAKER_HEIGHT - LIQUID_TOP - 2,
+    );
     Multilink.multilinkAny(
       [
         state.concentrationProperty,
@@ -90,7 +96,10 @@ export class HalfCellBeakerNode extends Node {
     // An open-topped beaker.
     const beaker = new Path(
       new Shape().moveTo(0, 0).lineTo(0, BEAKER_HEIGHT).lineTo(BEAKER_WIDTH, BEAKER_HEIGHT).lineTo(BEAKER_WIDTH, 0),
-      { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 2.5 },
+      {
+        stroke: ElectrochemistryColors.glassColorProperty,
+        lineWidth: HALF_CELL_BEAKER_NODE_SETTINGS.BEAKER_LINE_WIDTH,
+      },
     );
 
     this.ionLayer.visibleProperty = showIonsProperty;
@@ -123,28 +132,43 @@ export class HalfCellBeakerNode extends Node {
         new Shape()
           .moveTo(x - 18, ELECTRODE_BOTTOM - 4)
           .lineTo(x - 18, ELECTRODE_TOP + 40)
-          .arc(x, ELECTRODE_TOP + 40, 18, Math.PI, 0)
+          .arc(x, ELECTRODE_TOP + 40, HALF_CELL_BEAKER_NODE_SETTINGS.HOOD_RADIUS, Math.PI, 0)
           .lineTo(x + 18, ELECTRODE_BOTTOM - 4),
-        { stroke: ElectrochemistryColors.glassColorProperty, lineWidth: 2 },
+        {
+          stroke: ElectrochemistryColors.glassColorProperty,
+          lineWidth: HALF_CELL_BEAKER_NODE_SETTINGS.HOOD_LINE_WIDTH,
+        },
       );
-      const gas = new Rectangle(x - 17, ELECTRODE_TOP + 40, 34, LIQUID_TOP - ELECTRODE_TOP - 34, {
-        fill: ElectrochemistryColors.bubbleColorProperty,
-        opacity: 0.25,
-      });
+      const gas = new Rectangle(
+        x - 17,
+        ELECTRODE_TOP + 40,
+        HALF_CELL_BEAKER_NODE_SETTINGS.GAS_WIDTH,
+        LIQUID_TOP - ELECTRODE_TOP - 34,
+        {
+          fill: ElectrochemistryColors.bubbleColorProperty,
+          opacity: HALF_CELL_BEAKER_NODE_SETTINGS.GAS_OPACITY,
+        },
+      );
       const inlet = new Line(x + 18, ELECTRODE_TOP + 48, x + 40, ELECTRODE_TOP + 48, {
         stroke: ElectrochemistryColors.glassColorProperty,
-        lineWidth: 3,
+        lineWidth: HALF_CELL_BEAKER_NODE_SETTINGS.INLET_LINE_WIDTH,
       });
       this.electrodeLayer.children = [
         gas,
         new Line(x, ELECTRODE_TOP, x, ELECTRODE_BOTTOM - 40, {
           stroke: ElectrochemistryColors.wireColorProperty,
-          lineWidth: 2,
+          lineWidth: HALF_CELL_BEAKER_NODE_SETTINGS.CHILDREN_LINE_WIDTH,
         }),
-        new Rectangle(x - 7, ELECTRODE_BOTTOM - 40, 14, 34, {
-          fill: electrodeColor(halfCell),
-          stroke: ElectrochemistryColors.panelBorderColorProperty,
-        }),
+        new Rectangle(
+          x - 7,
+          ELECTRODE_BOTTOM - 40,
+          HALF_CELL_BEAKER_NODE_SETTINGS.CHILDREN_WIDTH,
+          HALF_CELL_BEAKER_NODE_SETTINGS.CHILDREN_HEIGHT,
+          {
+            fill: electrodeColor(halfCell),
+            stroke: ElectrochemistryColors.panelBorderColorProperty,
+          },
+        ),
         hood,
         inlet,
       ];
@@ -152,8 +176,10 @@ export class HalfCellBeakerNode extends Node {
         this.bubbleLayer.addChild(
           new Circle(2.5 + (i % 3), {
             stroke: ElectrochemistryColors.bubbleColorProperty,
-            x: x + (i % 2 === 0 ? -24 : 24),
-            y: ELECTRODE_BOTTOM - (i * (ELECTRODE_BOTTOM - LIQUID_TOP)) / 6,
+            x: x + (i % 2 === 0 ? -24 : HALF_CELL_BEAKER_NODE_SETTINGS.REBUILD_ELECTRODE_X),
+            y:
+              ELECTRODE_BOTTOM -
+              (i * (ELECTRODE_BOTTOM - LIQUID_TOP)) / HALF_CELL_BEAKER_NODE_SETTINGS.REBUILD_ELECTRODE_Y_FACTOR,
           }),
         );
       }
@@ -163,8 +189,8 @@ export class HalfCellBeakerNode extends Node {
         ELECTRODE_TOP,
         ELECTRODE_WIDTH,
         ELECTRODE_BOTTOM - ELECTRODE_TOP,
-        2,
-        2,
+        HALF_CELL_BEAKER_NODE_SETTINGS.PLATE_CORNER_X,
+        HALF_CELL_BEAKER_NODE_SETTINGS.PLATE_CORNER_Y,
         {
           fill: electrodeColor(halfCell),
           stroke: ElectrochemistryColors.panelBorderColorProperty,
@@ -172,7 +198,7 @@ export class HalfCellBeakerNode extends Node {
       );
       this.stub = new Line(x, ELECTRODE_TOP, x, ELECTRODE_TOP + 20, {
         stroke: ElectrochemistryColors.wireColorProperty,
-        lineWidth: 2,
+        lineWidth: HALF_CELL_BEAKER_NODE_SETTINGS.STUB_LINE_WIDTH,
       });
       this.electrodeLayer.children = [this.plate, this.stub];
       this.resizeElectrode();

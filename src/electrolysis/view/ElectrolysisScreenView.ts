@@ -1,3 +1,4 @@
+import { ELECTROLYSIS_SCREEN_VIEW_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectrolysisScreenView.ts
  *
@@ -62,12 +63,12 @@ type SelfOptions = {
 
 export type ElectrolysisScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-const APPARATUS_SCALE = 0.86;
-const APPARATUS_CENTER_X = 255;
-const APPARATUS_TOP = 16;
-const REACTIONS_WIDTH = 464;
-const MIDDLE_LEFT = 496;
-const MIDDLE_WIDTH = 256;
+const APPARATUS_SCALE: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.APPARATUS_SCALE;
+const APPARATUS_CENTER_X: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.APPARATUS_CENTER_X;
+const APPARATUS_TOP: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.APPARATUS_TOP;
+const REACTIONS_WIDTH: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.REACTIONS_WIDTH;
+const MIDDLE_LEFT: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.MIDDLE_LEFT;
+const MIDDLE_WIDTH: number = ELECTROLYSIS_SCREEN_VIEW_SETTINGS.MIDDLE_WIDTH;
 const MIDDLE_CONTENT_WIDTH = MIDDLE_WIDTH - 24;
 const SIDE_CONTENT_WIDTH = SIDE_COLUMN_WIDTH - 24;
 
@@ -94,7 +95,11 @@ export class ElectrolysisScreenView extends ScreenView {
 
     // ── Reactions ───────────────────────────────────────────────────────────────
     const line = (fill = ElectrochemistryColors.textColorProperty) =>
-      new RichText("", { font: new PhetFont(FONT_SIZE.control), fill, maxWidth: REACTIONS_WIDTH - 24 });
+      new RichText("", {
+        font: new PhetFont(FONT_SIZE.control),
+        fill,
+        maxWidth: REACTIONS_WIDTH - ELECTROLYSIS_SCREEN_VIEW_SETTINGS.LINE_MAX_WIDTH_OFFSET,
+      });
     const electrolyteLine = line();
     const cathodeLine = line();
     const anodeLine = line();
@@ -127,14 +132,14 @@ export class ElectrolysisScreenView extends ScreenView {
           reaction: system.overallReaction,
         });
         minimumLine.string = StringUtils.fillIn(strings.minimumVoltagePatternStringProperty.value, {
-          value: fixed(model.minimumVoltageProperty.value, 2),
+          value: fixed(model.minimumVoltageProperty.value, ELECTROLYSIS_SCREEN_VIEW_SETTINGS.MINIMUM_LINE_DECIMALS),
         });
       },
     );
     const reactionsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 4,
+        spacing: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.REACTIONS_PANEL_SPACING,
         children: [electrolyteLine, cathodeLine, anodeLine, overallLine, minimumLine],
       }),
       { minWidth: REACTIONS_WIDTH, maxWidth: REACTIONS_WIDTH },
@@ -244,7 +249,7 @@ export class ElectrolysisScreenView extends ScreenView {
     const measurementsPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 4,
+        spacing: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.MEASUREMENTS_PANEL_SPACING,
         children: [
           heading(strings.measurementsHeadingStringProperty, MIDDLE_CONTENT_WIDTH),
           timeText,
@@ -299,7 +304,7 @@ export class ElectrolysisScreenView extends ScreenView {
     const faradayPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 4,
+        spacing: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.FARADAY_PANEL_SPACING,
         children: [
           heading(strings.faradayHeadingStringProperty, MIDDLE_CONTENT_WIDTH),
           chargeLine,
@@ -342,7 +347,7 @@ export class ElectrolysisScreenView extends ScreenView {
     const systemPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 8,
+        spacing: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.SYSTEM_PANEL_SPACING,
         children: [heading(strings.electrolyteHeadingStringProperty, SIDE_CONTENT_WIDTH), systemMenu, newRunButton],
       }),
       { minWidth: SIDE_COLUMN_WIDTH, maxWidth: SIDE_COLUMN_WIDTH },
@@ -353,7 +358,11 @@ export class ElectrolysisScreenView extends ScreenView {
       strings.voltageStringProperty,
       model.voltageProperty,
       model.voltageProperty.range,
-      { delta: 0.05, decimalPlaces: 2, valuePattern: common.voltsPatternStringProperty },
+      {
+        delta: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.VOLTAGE_CONTROL_DELTA,
+        decimalPlaces: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.VOLTAGE_CONTROL_DECIMAL_PLACES,
+        valuePattern: common.voltsPatternStringProperty,
+      },
       SIDE_CONTENT_WIDTH,
     );
     const calculationCheckbox = checkbox(
@@ -364,7 +373,7 @@ export class ElectrolysisScreenView extends ScreenView {
     const supplyPanel = new ElectrochemistryPanel(
       new VBox({
         align: "left",
-        spacing: 10,
+        spacing: ELECTROLYSIS_SCREEN_VIEW_SETTINGS.SUPPLY_PANEL_SPACING,
         children: [
           heading(strings.supplyHeadingStringProperty, SIDE_CONTENT_WIDTH),
           powerCheckbox,
@@ -468,7 +477,7 @@ function calculationLines(product: ElectrodeProduct, electrode: string, charge: 
       StringUtils.fillIn(strings.productMassPatternStringProperty.value, {
         formula,
         moles: moles(amount),
-        molarMass: fixed(product.molarMass, 2),
+        molarMass: fixed(product.molarMass, ELECTROLYSIS_SCREEN_VIEW_SETTINGS.CALCULATION_LINES_DECIMALS),
         value: formatMass(amount * product.molarMass),
       }),
     );
@@ -478,8 +487,8 @@ function calculationLines(product: ElectrodeProduct, electrode: string, charge: 
       StringUtils.fillIn(strings.productVolumePatternStringProperty.value, {
         formula,
         moles: moles(amount),
-        molarVolume: fixed(volume.molarVolumeLiters, 2),
-        liters: fixed(volume.liters, 4),
+        molarVolume: fixed(volume.molarVolumeLiters, ELECTROLYSIS_SCREEN_VIEW_SETTINGS.CALCULATION_LINES_DECIMALS),
+        liters: fixed(volume.liters, ELECTROLYSIS_SCREEN_VIEW_SETTINGS.LITERS_FIXED_DECIMALS),
         value: fixed(volume.milliliters, 1),
       }),
     );

@@ -1,3 +1,4 @@
+import { FORMAT_VALUES_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * formatValues.ts
  *
@@ -81,21 +82,21 @@ export function formatConcentration(concentration: number): string {
 }
 
 export function formatPotential(potential: number): string {
-  return fixed(potential, 3);
+  return fixed(potential, FORMAT_VALUES_SETTINGS.FORMAT_POTENTIAL_DECIMALS);
 }
 
 export function formatCurrent(current: number): string {
-  return fixed(Math.abs(current), 3);
+  return fixed(Math.abs(current), FORMAT_VALUES_SETTINGS.FORMAT_CURRENT_DECIMALS);
 }
 
 export function formatMass(mass: number): string {
-  return fixed(mass, 3);
+  return fixed(mass, FORMAT_VALUES_SETTINGS.FORMAT_MASS_DECIMALS);
 }
 
 /** Simulated time in hours, e.g. "2.45 h". */
 export function formatHours(seconds: number): string {
   return StringUtils.fillIn(StringManager.getInstance().getCommonStrings().hoursPatternStringProperty.value, {
-    value: fixed(seconds / 3600, 2),
+    value: fixed(seconds / 3600, FORMAT_VALUES_SETTINGS.FORMAT_HOURS_DECIMALS),
   });
 }
 

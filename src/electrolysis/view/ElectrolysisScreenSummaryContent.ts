@@ -1,3 +1,4 @@
+import { ELECTROLYSIS_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../ElectrochemistryConstants.js";
 /**
  * ElectrolysisScreenSummaryContent.ts
  *
@@ -50,7 +51,7 @@ export class ElectrolysisScreenSummaryContent extends ScreenSummaryContent {
         ].join(". ");
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           system: systemNameProperty(system.id).value,
-          voltage: fixed(voltage, 2),
+          voltage: fixed(voltage, ELECTROLYSIS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DECIMALS),
           power: on ? a11y.powerOnStateStringProperty.value : a11y.powerOffStateStringProperty.value,
           current: formatCurrent(current),
           charge: fixed(charge, 0),
