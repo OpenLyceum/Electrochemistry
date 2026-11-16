@@ -21,6 +21,7 @@ import {
   Property,
   type TReadOnlyProperty,
 } from "scenerystack/axon";
+import { toFixed } from "scenerystack/dot";
 import type { TModel } from "scenerystack/joist";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import {
@@ -62,7 +63,7 @@ export function gasEquationAmounts(molesAmount: number): {
   liters: number;
   milliliters: number;
 } {
-  const milliliters = Number((molesAmount * MOLAR_GAS_VOLUME).toFixed(1));
+  const milliliters = Number(toFixed(molesAmount * MOLAR_GAS_VOLUME, 1));
   return {
     molarVolumeLiters: MOLAR_GAS_VOLUME / 1000,
     liters: milliliters / 1000,
