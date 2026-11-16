@@ -266,7 +266,7 @@ export class GalvanicCellNode extends Node {
         conventional.visible = isFlowing && show;
         // Electrons left → right (current > 0) means conventional current right → left.
         conventionalArrow.setTailAndTip(current > 0 ? 60 : 0, 0, current > 0 ? 0 : 60, 0);
-        conventionalArrow.x = GALVANIC_CELL_NODE_SETTINGS.X_X;
+        conventionalArrow.x = GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_X;
         conventionalArrow.y = WIRE_Y - GALVANIC_CELL_NODE_SETTINGS.CONSTRUCTOR_Y_OFFSET;
         conventionalLabel.centerX = conventionalArrow.centerX;
         conventionalLabel.bottom = conventionalArrow.top - 2;

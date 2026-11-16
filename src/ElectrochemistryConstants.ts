@@ -393,8 +393,8 @@ export const GALVANIC_CELL_NODE_SETTINGS = {
   CONVENTIONAL_ARROW_HEAD_WIDTH: 12,
   /** Conventional arrow tail width (px). */
   CONVENTIONAL_ARROW_TAIL_WIDTH: 3,
-  /** X x (px). */
-  X_X: 120,
+  /** Conventional-current arrow x (px). */
+  CONVENTIONAL_ARROW_X: 120,
   /** Lead line width (px). */
   LEAD_LINE_WIDTH: 2,
   /** Leads radius (px). */
@@ -675,9 +675,9 @@ export const NERNST_CHART_NODE_SETTINGS = {
   CONSTRUCTOR_LEFT_OFFSET: 4, // px
   CONSTRUCTOR_BOTTOM_OFFSET: 3, // px
 
-  /** Max log k shown (px). */
+  /** Largest |log K| shown on the chart (log units). */
   MAX_LOG_K_SHOWN: 60,
-  /** Min log q span (px). */
+  /** Minimum half-span of the log Q axis (log units). */
   MIN_LOG_Q_SPAN: 6,
   /** Nernst line line width (px). */
   NERNST_LINE_LINE_WIDTH: 2.5,
@@ -689,12 +689,12 @@ export const NERNST_CHART_NODE_SETTINGS = {
   EQUILIBRIUM_POINT_RADIUS: 7,
   /** Current point radius (px). */
   CURRENT_POINT_RADIUS: 6,
-  /** Right right (px). */
-  RIGHT_RIGHT: -32,
-  /** Bottom bottom (px). */
-  BOTTOM_BOTTOM: -8,
-  /** Top top (px). */
-  TOP_TOP: 4,
+  /** Y-axis title right inset (px). */
+  Y_TITLE_RIGHT: -32,
+  /** Chart title bottom inset (px). */
+  TITLE_BOTTOM: -8,
+  /** Off-chart message top inset (px). */
+  OFF_CHART_TOP: 4,
 } as const;
 
 /** Settings for nernst/view/NernstScreenView.ts. */

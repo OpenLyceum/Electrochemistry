@@ -160,7 +160,7 @@ export class NernstChartNode extends Node {
       maxWidth: height,
     });
     yTitle.boundsProperty.link(() => {
-      yTitle.right = NERNST_CHART_NODE_SETTINGS.RIGHT_RIGHT;
+      yTitle.right = NERNST_CHART_NODE_SETTINGS.Y_TITLE_RIGHT;
       yTitle.centerY = height / 2;
     });
     const title = new RichText(strings.chartTitleStringProperty, {
@@ -170,11 +170,11 @@ export class NernstChartNode extends Node {
     });
     title.boundsProperty.link(() => {
       title.left = 0;
-      title.bottom = NERNST_CHART_NODE_SETTINGS.BOTTOM_BOTTOM;
+      title.bottom = NERNST_CHART_NODE_SETTINGS.TITLE_BOTTOM;
     });
     offChartText.boundsProperty.link(() => {
       offChartText.right = width - NERNST_CHART_NODE_SETTINGS.CONSTRUCTOR_RIGHT_OFFSET;
-      offChartText.top = NERNST_CHART_NODE_SETTINGS.TOP_TOP;
+      offChartText.top = NERNST_CHART_NODE_SETTINGS.OFF_CHART_TOP;
     });
 
     this.children = [
