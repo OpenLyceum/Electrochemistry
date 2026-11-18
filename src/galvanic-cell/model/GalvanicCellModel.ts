@@ -17,7 +17,7 @@ import { CELL_TIME_SCALE, STANDARD_CONCENTRATION } from "../../ElectrochemistryC
 
 export class GalvanicCellModel implements TModel {
   public readonly cell = new ElectrochemicalCell({ initialConcentration: STANDARD_CONCENTRATION });
-  public readonly timer = new TimeModel(true);
+  public readonly timer = new TimeModel({ initiallyPlaying: true });
   public readonly timeSpeedProperty = new EnumerationProperty(TimeSpeed.SLOW);
 
   /** Show the half-reactions, overall reaction and cell notation. */

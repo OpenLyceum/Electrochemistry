@@ -109,7 +109,7 @@ export class NernstModel implements TModel {
     range: new Range(TEMPERATURE_RANGE.min - CELSIUS_OFFSET, TEMPERATURE_RANGE.max - CELSIUS_OFFSET),
     units: "°C",
   });
-  public readonly timer = new TimeModel(true);
+  public readonly timer = new TimeModel({ initiallyPlaying: true });
   public readonly timeSpeedProperty = new EnumerationProperty(TimeSpeed.FAST);
 
   /** Show the Nernst equation with the numbers substituted. */

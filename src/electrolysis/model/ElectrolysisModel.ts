@@ -151,7 +151,7 @@ export class ElectrolysisModel implements TModel {
   });
   /** The supply is switched on. */
   public readonly powerOnProperty = new BooleanProperty(false);
-  public readonly timer = new TimeModel(true);
+  public readonly timer = new TimeModel({ initiallyPlaying: true });
   public readonly timeSpeedProperty = new EnumerationProperty(TimeSpeed.NORMAL);
 
   /** Show the Faraday's-law calculation (hidden by default so students can predict first). */
