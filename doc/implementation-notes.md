@@ -16,13 +16,17 @@ src/
 
 ## Decisions
 
-**One cell model, two screens.** `ElectrochemicalCell` holds two `HalfCellState`s (half-cell,
+**One cell model, three screens.** `ElectrochemicalCell` holds two `HalfCellState`s (half-cell,
 concentration, electrode mass) and derives the potential, the voltmeter reading and the anode
 side. The Galvanic Cell and Nernst screens each own an instance, so they don't share state.
 Choosing a new half-cell gives that beaker fresh solution and a fresh electrode and restarts the
 run's clock and charge.
 Current is derived from the present potential, concentrations, circuit, salt bridge and anode
 availability, so condition edits refresh it even while paused without advancing charge or time.
+The Electrolysis screen uses the same Faraday bookkeeping on a driven cell
+(`ElectrolysisModel` / `ElectrolysisSystems`) rather than a second copy of
+`ElectrochemicalCell`: gas tubes or plating finish at a target charge
+(`chargeToFinish`), with its own apparatus view.
 
 **Pure thermodynamics.** `Nernst.ts` takes half-cells and concentrations and returns numbers. The
 electrode-by-electrode form (E = E° + (νRT/nF) ln[Ox]) is what the cell uses; the textbook
