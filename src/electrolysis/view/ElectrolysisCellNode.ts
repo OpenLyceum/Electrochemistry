@@ -82,7 +82,7 @@ export class ElectrolysisCellNode extends Node {
   private cathodeElectrons: ElectronFlowNode | null = null;
   private anodeElectrons: ElectronFlowNode | null = null;
   private readonly supply: MeterNode;
-  private readonly solutionFill: TReadOnlyProperty<Color>;
+  private readonly solutionFillProperty: TReadOnlyProperty<Color>;
 
   public constructor(model: ElectrolysisModel, conventionalCurrentProperty: TReadOnlyProperty<boolean>) {
     super();
@@ -91,7 +91,7 @@ export class ElectrolysisCellNode extends Node {
     const strings = StringManager.getInstance().getElectrolysisStrings();
 
     // ── Power supply ────────────────────────────────────────────────────────────
-    const voltageText = new DerivedProperty(
+    const voltageTextProperty = new DerivedProperty(
       [model.voltageProperty, model.powerOnProperty, common.voltsPatternStringProperty],
       (voltage, on, pattern) =>
         on
@@ -100,13 +100,13 @@ export class ElectrolysisCellNode extends Node {
             })
           : "– – –",
     );
-    const currentText = new DerivedProperty(
+    const currentTextProperty = new DerivedProperty(
       [model.currentProperty, model.powerOnProperty, common.ampsPatternStringProperty],
       (current, on, pattern) => (on ? StringUtils.fillIn(pattern, { value: formatCurrent(current) }) : ""),
     );
     this.supply = new MeterNode({
       width: ELECTROLYSIS_CELL_NODE_SETTINGS.SUPPLY_WIDTH,
-      lines: [voltageText, currentText],
+      lines: [voltageTextProperty, currentTextProperty],
       caption: strings.supplyCaptionStringProperty,
       blackLabel: "−",
       redLabel: "+",
@@ -121,7 +121,7 @@ export class ElectrolysisCellNode extends Node {
       BEAKER_RIGHT - BEAKER_LEFT - 4,
       BEAKER_BOTTOM - LIQUID_TOP - 2,
     );
-    const solutionFill = new DerivedProperty(
+    const solutionFillProperty = new DerivedProperty(
       [
         model.systemProperty,
         model.cationConcentrationProperty,
@@ -131,8 +131,8 @@ export class ElectrolysisCellNode extends Node {
       (system, concentration, water, copper) =>
         system.tint === "copper" ? Color.interpolateRGBA(water, copper, Math.min(1, concentration) ** 0.6) : water,
     );
-    solution.fill = solutionFill;
-    this.solutionFill = solutionFill;
+    solution.fill = solutionFillProperty;
+    this.solutionFillProperty = solutionFillProperty;
     const beaker = new Path(
       new Shape()
         .moveTo(BEAKER_LEFT, BEAKER_TOP)
@@ -176,11 +176,11 @@ export class ElectrolysisCellNode extends Node {
       });
       return label;
     };
-    const cathodeRole = new DerivedProperty(
+    const cathodeRoleProperty = new DerivedProperty(
       [common.cathodeStringProperty, common.reductionStringProperty],
       (cathode, reduction) => `${cathode} (−) · ${reduction}`,
     );
-    const anodeRole = new DerivedProperty(
+    const anodeRoleProperty = new DerivedProperty(
       [common.anodeStringProperty, common.oxidationStringProperty],
       (anode, oxidation) => `${anode} (+) · ${oxidation}`,
     );
@@ -217,8 +217,8 @@ export class ElectrolysisCellNode extends Node {
       this.wireLayer,
       this.supply,
       conventional,
-      roleLabel(cathodeRole, ElectrochemistryColors.cathodeColorProperty, CATHODE_X),
-      roleLabel(anodeRole, ElectrochemistryColors.anodeColorProperty, ANODE_X),
+      roleLabel(cathodeRoleProperty, ElectrochemistryColors.cathodeColorProperty, CATHODE_X),
+      roleLabel(anodeRoleProperty, ElectrochemistryColors.anodeColorProperty, ANODE_X),
     ];
 
     model.systemProperty.link((system) => this.rebuild(system));
@@ -298,7 +298,7 @@ export class ElectrolysisCellNode extends Node {
         .arc(x, TUBE_TOP + TUBE_HALF_WIDTH, TUBE_HALF_WIDTH, Math.PI, 0)
         .lineTo(x + TUBE_HALF_WIDTH, TUBE_BOTTOM);
       // The tube starts full of solution; gas collects from the top down.
-      const filled = new Path(tubeShape, { fill: this.solutionFill });
+      const filled = new Path(tubeShape, { fill: this.solutionFillProperty });
       view.gas.fill = product.formula.startsWith("Cl")
         ? ElectrochemistryColors.chlorineColorProperty
         : ElectrochemistryColors.bubbleColorProperty;

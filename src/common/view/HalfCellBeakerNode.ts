@@ -13,7 +13,7 @@ import { HALF_CELL_BEAKER_NODE_SETTINGS } from "../../ElectrochemistryConstants.
  */
 
 import { Multilink, type TReadOnlyProperty } from "scenerystack/axon";
-import { dotRandom, Vector2 } from "scenerystack/dot";
+import { dotRandom, roundSymmetric, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Circle, Color, Line, Node, Path, Rectangle } from "scenerystack/scenery";
 import ElectrochemistryColors from "../../ElectrochemistryColors.js";
@@ -271,7 +271,7 @@ export class HalfCellBeakerNode extends Node {
 
   /** Adds or removes ions so their number follows the concentration. */
   private syncIonCount(): void {
-    const target = Math.min(MAX_IONS, Math.round(this.state.concentrationProperty.value * IONS_PER_MOLAR));
+    const target = Math.min(MAX_IONS, roundSymmetric(this.state.concentrationProperty.value * IONS_PER_MOLAR));
     const growing = this.particles.length > 0;
     while (this.particles.length < target) {
       this.addParticle(growing ? this.besideElectrode() : this.randomPosition());

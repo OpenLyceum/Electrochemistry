@@ -12,7 +12,7 @@ import { NERNST_SCREEN_VIEW_SETTINGS } from "../../ElectrochemistryConstants.js"
  */
 
 import { BooleanProperty, DerivedProperty, Multilink, type TReadOnlyProperty } from "scenerystack/axon";
-import { Dimension2 } from "scenerystack/dot";
+import { Dimension2, roundSymmetric } from "scenerystack/dot";
 import { optionize } from "scenerystack/phet-core";
 import { StringUtils } from "scenerystack/phetcommon";
 import { Node, RichText, VBox } from "scenerystack/scenery";
@@ -173,7 +173,7 @@ export class NernstScreenView extends ScreenView {
           keyboardStep: NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_KEYBOARD_STEP,
           shiftKeyboardStep: NERNST_SCREEN_VIEW_SETTINGS.CONCENTRATION_CONTROL_SHIFT_KEYBOARD_STEP,
           pageKeyboardStep: 1,
-          constrainValue: (value: number) => Math.round(value / 0.01) * 0.01,
+          constrainValue: (value: number) => roundSymmetric(value / 0.01) * 0.01,
           pdomCreateAriaValueText: () =>
             StringUtils.fillIn(common.molarPatternStringProperty.value, {
               value: formatConcentration(state.concentrationProperty.value),

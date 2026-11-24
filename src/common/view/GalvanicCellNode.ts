@@ -7,7 +7,7 @@ import { GALVANIC_CELL_NODE_SETTINGS } from "../../ElectrochemistryConstants.js"
  * with a light bulb and a knife switch, and a voltmeter across the electrodes (black lead left,
  * red lead right).
  *
- * With current flowing, electrons move through the wire from anode to cathode at a speed that
+ * With current flowingProperty, electrons move through the wire from anode to cathode at a speed that
  * follows the current, K⁺ in the salt bridge drifts towards the cathode and NO₃⁻ towards the
  * anode, and the bulb glows. Clicking the switch toggles it, and clicking the salt bridge
  * toggles it when `interactiveSaltBridge` is set (the Galvanic Cell panel's checkboxes do the
@@ -241,11 +241,11 @@ export class GalvanicCellNode extends Node {
     });
 
     this.electrons = new ElectronFlowNode(wirePoints);
-    const flowing = new DerivedProperty(
+    const flowingProperty = new DerivedProperty(
       [cell.currentProperty, cell.circuitClosedProperty],
       (current, closed) => closed && Math.abs(current) > CURRENT_THRESHOLD,
     );
-    this.electrons.visibleProperty = flowing;
+    this.electrons.visibleProperty = flowingProperty;
 
     // Conventional current runs opposite to the electrons in the external wire.
     const conventionalArrow = new ArrowNode(0, 0, GALVANIC_CELL_NODE_SETTINGS.CONVENTIONAL_ARROW_END_X, 0, {
@@ -261,7 +261,7 @@ export class GalvanicCellNode extends Node {
     });
     const conventional = new Node({ children: [conventionalArrow, conventionalLabel] });
     Multilink.multilink(
-      [flowing, options.conventionalCurrentProperty, cell.currentProperty],
+      [flowingProperty, options.conventionalCurrentProperty, cell.currentProperty],
       (isFlowing, show, current) => {
         conventional.visible = isFlowing && show;
         // Electrons left → right (current > 0) means conventional current right → left.
@@ -403,8 +403,8 @@ export class GalvanicCellNode extends Node {
     this.leftBeaker.step(dt);
     this.rightBeaker.step(dt);
     const current = this.cell.currentProperty.value;
-    const flowing = Math.abs(current) > CURRENT_THRESHOLD;
-    const strength = flowing ? 0.15 + 0.85 * Math.min(1, Math.abs(current) / FULL_BRIGHTNESS_CURRENT) : 0;
+    const flowingProperty = Math.abs(current) > CURRENT_THRESHOLD;
+    const strength = flowingProperty ? 0.15 + 0.85 * Math.min(1, Math.abs(current) / FULL_BRIGHTNESS_CURRENT) : 0;
     this.electrons.step(dt, Math.sign(current) * ELECTRON_SPEED * strength);
 
     // Bridge distance runs from the left beaker to the right. Cations move towards the cathode:
