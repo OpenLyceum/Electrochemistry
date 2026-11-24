@@ -30,11 +30,6 @@ const SUPERSCRIPTS: Record<string, string> = {
   "9": "⁹",
 };
 
-/** Typed lookup in a getNestedStringProperties group (keys are suffixed "StringProperty"). */
-function lookup<K extends string>(group: object, key: K): ReadOnlyProperty<string> {
-  return (group as Record<string, ReadOnlyProperty<string>>)[`${key}StringProperty`] as ReadOnlyProperty<string>;
-}
-
 // ── Numbers ───────────────────────────────────────────────────────────────────
 
 /** Fixed decimals with a true minus sign. */
@@ -112,11 +107,11 @@ export function formatMinutes(seconds: number): string {
 // ── Names ─────────────────────────────────────────────────────────────────────
 
 export function halfCellNameProperty(id: HalfCellId): ReadOnlyProperty<string> {
-  return lookup(StringManager.getInstance().getHalfCellNames(), id);
+  return StringManager.getInstance().getHalfCellNames()[`${id}StringProperty`];
 }
 
 export function systemNameProperty(id: ElectrolysisSystemId): ReadOnlyProperty<string> {
-  return lookup(StringManager.getInstance().getSystemNames(), id);
+  return StringManager.getInstance().getSystemNames()[`${id}StringProperty`];
 }
 
 // ── Chemical notation (RichText) ──────────────────────────────────────────────
